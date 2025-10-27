@@ -8,7 +8,7 @@ const Calendar = () => {
   return (
     <ThemedView style={styles.container}>
 
-      <ThemedText title={true} style={styles.heading}>
+      <ThemedText title={true} style={styles.heading} safe={true}>
         Clendar
       </ThemedText>
       <Spacer />

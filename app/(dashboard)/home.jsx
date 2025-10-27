@@ -6,8 +6,9 @@ import ThemedView from "../../components/ThemedView"
 
 const Home = () => {
   return (
-    <ThemedView style={styles.container}>
+    <ThemedView style={styles.container} safe={true}>
 
+      <Spacer />
       <ThemedText title={true} style={styles.heading}>
         Home
       </ThemedText>
