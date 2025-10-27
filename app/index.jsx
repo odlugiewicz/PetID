@@ -33,6 +33,24 @@ const Home = () => {
           Sign Up
         </ThemedText>
       </Link>
+
+      <Link href="/home" style={styles.link}>
+        <ThemedText>
+          Home
+        </ThemedText>
+      </Link>
+
+      <Link href="/pets" style={styles.link}>
+        <ThemedText>
+          Pets
+        </ThemedText>
+      </Link>
+
+      <Link href="/calendar" style={styles.link}>
+        <ThemedText>
+          Calendar
+        </ThemedText>
+      </Link>
     </ThemedView>
   )
 }
