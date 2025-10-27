@@ -22,15 +22,15 @@ const Home = () => {
       </ThemedText>
       <Spacer />
 
-      <Link href="/about" style={styles.link}>
+      <Link href="/login" style={styles.link}>
         <ThemedText>
-          About Page
+          Sign In
         </ThemedText>
       </Link>
 
-      <Link href="/contact" style={styles.link}>
+      <Link href="/register" style={styles.link}>
         <ThemedText>
-          Contact Page
+          Sign Up
         </ThemedText>
       </Link>
     </ThemedView>
