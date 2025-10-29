@@ -2,6 +2,7 @@ import { StyleSheet, Text, Image, TouchableWithoutFeedback, Keyboard} from 'reac
 import { Link } from 'expo-router'
 import { Colors } from '../../constants/Colors'
 import { useState } from 'react'
+import { useUser } from '../../hooks/useUser'
 
 
 import Logo from '../../assets/img/logo_blue.png'
@@ -14,9 +15,18 @@ import ThemedTextInput from '../../components/ThemedTextInput'
 const Login = () => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const [error, setError] = useState(null);
 
-    const handleSubmit = () => {
-        console.log("Sign In form subbmitted", email, password)
+    const {user, login} = useUser()
+
+    const handleSubmit = async() => {
+        setError(null);
+
+        try{
+            await login(email, password);
+        }catch(error){
+            setError(error.message);
+        }
     }
 
     return (
@@ -50,6 +60,9 @@ const Login = () => {
                     <Text style={{ color: '#F5FCFA' }}> Sign In</Text>
                 </ThemedButton>
 
+                <Spacer />
+                {error && <Text style={styles.error}>{error}</Text>}
+
                 <Spacer height={40} />
                 <Link href="/register" >
                     <ThemedText style={{ textAlign: "center" }}>
@@ -74,5 +87,14 @@ const styles = StyleSheet.create({
         textAlign: "center",
         fontSize: 18,
         marginBottom: 30
+    },
+    error: {
+        color: Colors.warning,
+        padding: 10,
+        backgroundColor: '#F9DCE3',
+        borderColor: Colors.warning,
+        borderWidth: 1,
+        borderRadius: 5,
+        marginHorizontal: 10
     }
 })
