@@ -43,4 +43,9 @@ const styles = StyleSheet.create({
     fontSize: 18,
     textAlign: "center",
   },
+  button: {
+    marginTop: 20,  
+    width: '80%',
+    padding: 15,
+  }
 })

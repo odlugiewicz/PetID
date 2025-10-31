@@ -1,12 +1,16 @@
 import { StyleSheet, Text, View, Image } from 'react-native'
 import { Link } from 'expo-router'
+import { useRouter } from 'expo-router'
 
 import Logo from '../assets/img/logo_blue.png'
 import ThemedView from '../components/ThemedView'
 import Spacer from '../components/Spacer'
 import ThemedText from '../components/ThemedText'
+import ThemedButton from '../components/ThemedButton'
 
 const Home = () => {
+  const router = useRouter()
+
   return (
     <ThemedView style={styles.container}>
       <Image source={Logo} />
@@ -22,35 +26,20 @@ const Home = () => {
       </ThemedText>
       <Spacer />
 
-      <Link href="/login" style={styles.link}>
-        <ThemedText>
-          Sign In
-        </ThemedText>
-      </Link>
+      <ThemedButton 
+        style={styles.button}
+        onPress={() => router.push('/login')}
+      >
+        <ThemedText style={styles.buttonText}>Sign In</ThemedText>
+      </ThemedButton>
 
-      <Link href="/register" style={styles.link}>
-        <ThemedText>
-          Sign Up
-        </ThemedText>
-      </Link>
+      <ThemedButton 
+        style={styles.button}
+        onPress={() => router.push('/register')}
+      >
+        <ThemedText style={styles.buttonText}>Sign Up</ThemedText>
+      </ThemedButton>
 
-      <Link href="/home" style={styles.link}>
-        <ThemedText>
-          Home
-        </ThemedText>
-      </Link>
-
-      <Link href="/pets" style={styles.link}>
-        <ThemedText>
-          Pets
-        </ThemedText>
-      </Link>
-
-      <Link href="/calendar" style={styles.link}>
-        <ThemedText>
-          Calendar
-        </ThemedText>
-      </Link>
     </ThemedView>
   )
 }
@@ -70,5 +59,9 @@ const styles = StyleSheet.create({
   link: {
     marginVertical: 20,
     borderBottomWidth: 1
+  },
+  button: {
+    width: '60%',
+    alignItems: 'center'
   }
 })

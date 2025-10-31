@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native'
+import { StyleSheet, TouchableWithoutFeedback} from 'react-native'
 
 import Spacer from "../../components/Spacer"
 import ThemedText from "../../components/ThemedText"
@@ -6,6 +6,7 @@ import ThemedView from "../../components/ThemedView"
 
 const Calendar = () => {
   return (
+    <TouchableWithoutFeedback>
     <ThemedView style={styles.container}>
 
       <ThemedText title={true} style={styles.heading} safe={true}>
@@ -17,6 +18,7 @@ const Calendar = () => {
       <Spacer />
 
     </ThemedView>
+    </TouchableWithoutFeedback>
   )
 }
 
