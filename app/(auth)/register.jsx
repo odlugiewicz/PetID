@@ -15,6 +15,8 @@ import ThemedTextInput from '../../components/ThemedTextInput'
 const Register = () => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const [name, setName] = useState('')
+    const [phone, setPhone] = useState('')
     const [error, setError] = useState(null);
 
     const { register} = useUser()
@@ -23,7 +25,7 @@ const Register = () => {
         setError(null);
 
         try{
-            await register(email, password);
+            await register(email, password, name, phone);
         }catch(error){
             setError(error.message);
         }
@@ -55,6 +57,13 @@ const Register = () => {
                     onChangeText={setPassword}
                     value={password}
                     secureTextEntry={true}
+                />
+
+                <ThemedTextInput
+                    style={{ width: '80%', marginBottom: 20 }}
+                    placeholder="Name"
+                    onChangeText={setName}
+                    value={name}
                 />
 
                 <ThemedButton onPress={handleSubmit}>
