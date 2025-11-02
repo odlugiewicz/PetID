@@ -35,6 +35,19 @@ const DashboardLayout = () => {
         />
 
         <Tabs.Screen
+          name="calendar"
+          options={{
+            title: "Calendar", tabBarIcon: ({ focused }) => (
+              <Ionicons
+                size={24}
+                name="calendar"
+                color={focused ? theme.iconColorFocused : theme.iconColor}
+              />
+            )
+          }}
+        />
+
+        <Tabs.Screen
           name="pets"
           options={{
             title: "Pets", tabBarIcon: ({ focused }) => (
@@ -48,17 +61,24 @@ const DashboardLayout = () => {
         />
 
         <Tabs.Screen
-          name="calendar"
-          options={{
-            title: "Calendar", tabBarIcon: ({ focused }) => (
+        name="userProfile"
+        options={{
+            title: "Profile", tabBarIcon: ({ focused }) => (
               <Ionicons
                 size={24}
-                name="calendar"
+                name="person"
                 color={focused ? theme.iconColorFocused : theme.iconColor}
               />
             )
           }}
-        />
+      />
+
+      <Tabs.Screen
+        name="addPet" // Nazwa pliku to 'userProfile.jsx'
+        options={{
+          href: null, 
+        }}
+      />
 
       </Tabs>
     </UserOnly>

@@ -20,7 +20,7 @@ const Pets = () => {
 
       <ThemedButton 
         style={styles.button}
-        //onPress={() => router.push('/petForm')}
+        onPress={() => router.push('/addPet')}
       >
         <ThemedText style={styles.buttonText}>
           Add Pet

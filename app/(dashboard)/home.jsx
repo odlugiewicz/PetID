@@ -22,10 +22,6 @@ const {logout, user} = useUser()
       </ThemedText>
       <Spacer />
 
-      <ThemedButton onPress={logout}>
-        <Text style={{ color: 'white' }}>Logout</Text>
-      </ThemedButton>
-
     </ThemedView>
   )
 }
