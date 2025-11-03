@@ -1,10 +1,12 @@
-import { StyleSheet, Text, TouchableWithoutFeedback, Keyboard, Modal, Pressable, View, Platform, useColorScheme } from 'react-native'
+import { StyleSheet, Text, Button, TouchableWithoutFeedback, Keyboard, Modal, Pressable, View, Platform, useColorScheme } from 'react-native'
 import { usePets } from '../../hooks/usePets'
 import { useRouter } from 'expo-router'
 import { useState } from 'react'
 import { Picker } from '@react-native-picker/picker'
 import { Colors } from '../../constants/Colors'
-import { Ionicons } from '@expo/vector-icons' // added import
+import { Ionicons } from '@expo/vector-icons'
+import DateTimePicker from '@react-native-community/datetimepicker';
+
 
 import ThemedView from "../../components/ThemedView"
 import ThemedText from "../../components/ThemedText"
@@ -22,9 +24,21 @@ const AddPet = () => {
     const [breed, setBreed] = useState("")
     const [loading, setLoading] = useState(false)
     const [showSpeciesPicker, setShowSpeciesPicker] = useState(false)
+    const [showBreedPicker, setShowBreedPicker] = useState(false)
 
     const { addPet } = usePets()
     const router = useRouter()
+
+    const [date, setDate] = useState(new Date(1598051730000));
+    const [mode, setMode] = useState('date');
+    const [show, setShow] = useState(false);
+
+    const onChange = (event, selectedDate) => {
+        const currentDate = selectedDate;
+        setShow(false);
+        setDate(currentDate);
+    };
+
 
     async function handleSubmit() {
         if (!name.trim()) return
@@ -43,6 +57,7 @@ const AddPet = () => {
         setLoading(false)
     }
 
+
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <ThemedView style={styles.container}>
@@ -60,13 +75,25 @@ const AddPet = () => {
                 />
                 <Spacer />
 
+                <DateTimePicker
+                    testID="dateTimePicker"
+                    value={date}
+                    mode={mode}
+                    is24Hour={true}
+                    onChange={onChange}
+                    style={styles.datePicker}
+                    
+                />
+
+                <Spacer />
+
                 <ThemedButton
                     style={[styles.picker, { backgroundColor: theme.uiBackground }]}
                     onPress={() => setShowSpeciesPicker(true)}
                 >
-                    <View style={styles.speciesRow}>
+                    <View style={styles.row}>
                         <ThemedText>
-                            {species ? species.charAt(0).toUpperCase() + species.slice(1) : "Select species"}
+                            {species ? species.charAt(0).toUpperCase() + species.slice(1) : "Select Species"}
                         </ThemedText>
                         <Ionicons name="chevron-down" size={20} color={theme.text} />
                     </View>
@@ -79,7 +106,7 @@ const AddPet = () => {
                     onRequestClose={() => setShowSpeciesPicker(false)}
                 >
                     <Pressable style={styles.modalOverlay} onPress={() => setShowSpeciesPicker(false)} />
-                    <View style={[styles.modalContent, { backgroundColor: theme.uiBackground }]}>
+                    <ThemedView style={[styles.modalContent, { backgroundColor: theme.uiBackground }]}>
                         <Picker
                             selectedValue={species}
                             onValueChange={(value) => {
@@ -105,17 +132,58 @@ const AddPet = () => {
                                 <ThemedText>Done</ThemedText>
                             </ThemedButton>
                         )}
-                    </View>
+                    </ThemedView>
                 </Modal>
+
 
                 <Spacer />
 
-                <ThemedTextInput
-                    style={styles.input}
-                    placeholder="Breed"
-                    value={breed}
-                    onChangeText={setBreed}
-                />
+
+                <ThemedButton
+                    style={[styles.picker, { backgroundColor: theme.uiBackground }]}
+                    onPress={() => setShowBreedPicker(true)}
+                >
+                    <View style={styles.row}>
+                        <ThemedText>
+                            {breed ? breed.charAt(0).toUpperCase() + breed.slice(1) : "Select Breed"}
+                        </ThemedText>
+                        <Ionicons name="chevron-down" size={20} color={theme.text} />
+                    </View>
+                </ThemedButton>
+
+                <Modal
+                    visible={showBreedPicker}
+                    transparent
+                    animationType="slide"
+                    onRequestClose={() => setShowBreedPicker(false)}
+                >
+                    <Pressable style={styles.modalOverlay} onPress={() => setShowBreedPicker(false)} />
+                    <ThemedView style={[styles.modalContent, { backgroundColor: theme.uiBackground }]}>
+                        <Picker
+                            selectedValue={breed}
+                            onValueChange={(value) => {
+                                setBreed(value)
+                                if (Platform.OS === 'android') {
+                                    setShowBreedPicker(false)
+                                }
+                            }}
+                            mode="dropdown"
+                            style={{ color: theme.text }}
+                            itemStyle={{ color: theme.text }}
+                            dropdownIconColor={theme.text}
+                        >
+                            <Picker.Item label="Dalmatian" value="dalmatian" />
+                            <Picker.Item label="Maine Coon" value="maine coon" />
+                        </Picker>
+
+                        {Platform.OS === 'ios' && (
+                            <ThemedButton onPress={() => setShowBreedPicker(false)}>
+                                <ThemedText>Done</ThemedText>
+                            </ThemedButton>
+                        )}
+                    </ThemedView>
+                </Modal>
+
                 <Spacer />
 
                 <ThemedButton onPress={handleSubmit} disabled={loading}>
@@ -161,7 +229,12 @@ const styles = StyleSheet.create({
         alignSelf: 'stretch',
         marginHorizontal: 40,
     },
-    speciesRow: {
+    datePicker:{
+        width: '80%',
+        textAlign: 100,
+        
+    },
+    row: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
