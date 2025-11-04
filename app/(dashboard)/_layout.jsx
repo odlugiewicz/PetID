@@ -21,18 +21,6 @@ const DashboardLayout = () => {
           tabBarInactiveTintColor: theme.iconColor
         }}
       >
-        <Tabs.Screen
-          name="home"
-          options={{
-            title: "Home", tabBarIcon: ({ focused }) => (
-              <Ionicons
-                size={24}
-                name="home"
-                color={focused ? theme.iconColorFocused : theme.iconColor}
-              />
-            )
-          }}
-        />
 
         <Tabs.Screen
           name="calendar"
@@ -74,7 +62,7 @@ const DashboardLayout = () => {
       />
 
       <Tabs.Screen
-        name="addPet" // Nazwa pliku to 'userProfile.jsx'
+        name="addPet"
         options={{
           href: null, 
         }}

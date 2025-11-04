@@ -4,15 +4,17 @@
   "main": "expo-router/entry",
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web"
   },
   "dependencies": {
     "@react-native-community/datetimepicker": "8.4.4",
     "@react-native-picker/picker": "^2.11.1",
     "@rn-primitives/select": "^1.2.0",
+    "date-fns": "^4.1.0",
     "expo": "~54.0.18",
+    "expo-checkbox": "~5.0.7",
     "expo-constants": "~18.0.10",
     "expo-linking": "~8.0.8",
     "expo-router": "~6.0.13",
@@ -21,6 +23,8 @@
     "react-dom": "19.1.0",
     "react-native": "0.81.5",
     "react-native-appwrite": "^0.17.1",
+    "react-native-date-picker": "^5.0.13",
+    "react-native-modal-datetime-picker": "^18.0.0",
     "react-native-safe-area-context": "~5.6.0",
     "react-native-screens": "~4.16.0",
     "react-native-url-polyfill": "^3.0.0"

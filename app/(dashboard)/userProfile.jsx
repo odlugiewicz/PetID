@@ -17,10 +17,6 @@ const {logout, user} = useUser()
       </ThemedText>
 
       <Spacer />
-      <ThemedText title={true} style={styles.heading}>
-        Home
-      </ThemedText>
-      <Spacer />
 
       <ThemedButton onPress={logout}>
         <Text style={{ color: 'white' }}>Logout</Text>
