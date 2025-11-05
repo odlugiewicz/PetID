@@ -1,4 +1,4 @@
-import { StyleSheet, Text, Button, TouchableWithoutFeedback, Keyboard, Modal, Pressable, View, Platform, useColorScheme } from 'react-native'
+import { StyleSheet, Text, TouchableWithoutFeedback, Keyboard, Modal, Pressable, View, Platform, useColorScheme } from 'react-native'
 import { usePets } from '../../hooks/usePets'
 import { useRouter } from 'expo-router'
 import { useState } from 'react'
@@ -16,7 +16,6 @@ import ThemedTextInput from "../../components/ThemedTextInput"
 import ThemedButton from '../../components/ThemedButton'
 import Spacer from '../../components/Spacer'
 import ThemedScroll from '../../components/ThemedScroll'
-import { StatusBar } from 'expo-status-bar'
 
 const AddPet = () => {
     const colorSheme = useColorScheme()
@@ -28,15 +27,16 @@ const AddPet = () => {
     const [birthDate, setBirthDate] = useState("")
     const [species, setSpecies] = useState("")
     const [breed, setBreed] = useState("")
-    const [loading, setLoading] = useState(false)
+    const [chipId, setChipId] = useState(null);
+    const [passportId, setPassportId] = useState("");
+    const [birthDateString, setBirthDateString] = useState("")
 
     const [showSpeciesPicker, setShowSpeciesPicker] = useState(false)
     const [showBreedPicker, setShowBreedPicker] = useState(false)
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-    const [chipId, setChipId] = useState("");
     const [isCheckedChip, setCheckedChip] = useState(false);
-    const [passportId, setPassportId] = useState("");
     const [isCheckedPassport, setCheckedPassport] = useState(false);
+    const [loading, setLoading] = useState(false)
 
 
     const showDatePicker = () => {
@@ -47,28 +47,32 @@ const AddPet = () => {
         setDatePickerVisibility(false);
     };
 
+
     const handleConfirm = (date) => {
         const formattedDate = date.toLocaleDateString('en-GB', {
             day: '2-digit',
             month: '2-digit',
             year: 'numeric'
         });
-        setBirthDate(formattedDate);
+        setBirthDateString(formattedDate);
+        setBirthDate(date);
         hideDatePicker();
     };
 
 
-    async function handleSubmit() {
-        if (!name.trim()) return
+    const handleSubmit = async () => {
+        if (!name.trim() || !species.trim() || !breed.trim()) return
 
         setLoading(true)
 
-        await addPet({ name, birthDate, species, breed })
+        await addPet({ name, birthDate, species, breed, chipId, passportId })
 
         setName("")
-        setBirthDate("")
+        setBirthDate(null)
         setSpecies("")
         setBreed("")
+        setChipId(null)
+        setPassportId("")
 
         router.replace("/pets")
 
@@ -100,7 +104,7 @@ const AddPet = () => {
                 >
                     <View style={styles.row}>
                         <ThemedText style={{ color: theme.text }}>
-                            {birthDate || "Select Birth Date"}
+                            {birthDateString || "Select Birth Date"}
                         </ThemedText>
                         <Ionicons name="chevron-down" size={20} color={theme.text} />
                     </View>
@@ -115,13 +119,13 @@ const AddPet = () => {
                     pickerStyleIOS={{ backgroundColor: theme.navBackground }}
                     pickerComponentStyleIOS={{ backgroundColor: theme.navBackground }}
                     textColor={theme.text}
-                    customConfirmButtonIOS={() => (
-                        <ThemedButton onPress={hideDatePicker} style={{ alignItems: "center", width: '80%', alignSelf: 'center' }}>
+                    customConfirmButtonIOS={({ onPress }) => (
+                        <ThemedButton onPress={onPress} style={{ alignItems: "center", width: '80%', alignSelf: 'center' }}>
                             <ThemedText>Confirm</ThemedText>
                         </ThemedButton>
                     )}
-                    customCancelButtonIOS={() => (
-                        <ThemedButton onPress={hideDatePicker} style={{ alignItems: "center", width: '80%', alignSelf: 'center' }}>
+                    customCancelButtonIOS={({ onPress }) => (
+                        <ThemedButton onPress={onPress} style={{ alignItems: "center", width: '80%', alignSelf: 'center' }}>
                             <ThemedText>Cancel</ThemedText>
                         </ThemedButton>
                     )}
@@ -268,7 +272,7 @@ const AddPet = () => {
                     {isCheckedPassport && (
                         <ThemedTextInput
                             style={styles.input}
-                            placeholder="Passport ID "
+                            placeholder="Passport ID (12 characters)"
                             value={passportId}
                             onChangeText={setPassportId}
                             maxLength={12}
@@ -295,11 +299,6 @@ const AddPet = () => {
 export default AddPet
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-    },
     heading: {
         fontWeight: "bold",
         fontSize: 18,

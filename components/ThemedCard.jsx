@@ -1,4 +1,4 @@
-import { View, useColorScheme } from 'react-native'
+import { View, useColorScheme, StyleSheet } from 'react-native'
 import {Colors} from '../constants/Colors'
 
 const ThemedCard = ({ style, ...props }) => {
@@ -13,7 +13,7 @@ const ThemedCard = ({ style, ...props }) => {
     )
 }
 
-export default ThemedView
+export default ThemedCard
 
 const styles = StyleSheet.create({
     card: {

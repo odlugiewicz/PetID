@@ -1,6 +1,6 @@
-import { createContext, useState } from "react";
-import { ID, Permission, Role } from "react-native-appwrite";
-import { database } from "../lib/appwrite";
+import { createContext, useEffect, useState } from "react";
+import { ID, Permission, Role, Query } from "react-native-appwrite";
+import { databases } from "../lib/appwrite";
 import { useUser } from "../hooks/useUser";
 
 const DATABASE_ID = "69051e15000f0c86fdb1"
@@ -14,7 +14,16 @@ export function PetsProvider({ children }) {
 
     async function fetchPets() {
         try {
+            const response = await databases.listDocuments(
+                DATABASE_ID,
+                TABLE_ID,
+                [
+                    Query.equal('userId', user.$id)
+                ]
+            )
 
+            setPets(response.documents)
+            console.log(response.documents)
         } catch (error) {
             console.error("Failed to fetch pets:", error);
         }
@@ -30,7 +39,8 @@ export function PetsProvider({ children }) {
 
     async function addPet(data) {
         try {
-            const newPet = await database.createDocument(
+
+            await databases.createDocument(
                 DATABASE_ID,
                 TABLE_ID,
                 ID.unique(),
@@ -54,6 +64,15 @@ export function PetsProvider({ children }) {
             console.error("Failed to delete pet:", error);
         }
     }
+
+    useEffect(() =>{
+
+        if (user) {
+            fetchPets()
+        }else{
+            setPets([])
+        }
+    }, [user])
 
     return (
         <PetsContext.Provider
