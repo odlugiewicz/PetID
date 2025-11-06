@@ -1,6 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 import { ID, Permission, Role, Query } from "react-native-appwrite";
-import { databases } from "../lib/appwrite";
+import { databases, client } from "../lib/appwrite";
 import { useUser } from "../hooks/useUser";
 
 const DATABASE_ID = "69051e15000f0c86fdb1"
@@ -10,7 +10,7 @@ export const PetsContext = createContext();
 
 export function PetsProvider({ children }) {
     const [pets, setPets] = useState([]);
-    const {user} = useUser();
+    const { user } = useUser();
 
     async function fetchPets() {
         try {
@@ -44,11 +44,11 @@ export function PetsProvider({ children }) {
                 DATABASE_ID,
                 TABLE_ID,
                 ID.unique(),
-                { ...data, userId: user.$id},
+                { ...data, userId: user.$id },
                 [
-                    Permission.read(Role.user( user.$id)),
-                    Permission.update(Role.user( user.$id)),
-                    Permission.delete(Role.user( user.$id)),
+                    Permission.read(Role.user(user.$id)),
+                    Permission.update(Role.user(user.$id)),
+                    Permission.delete(Role.user(user.$id)),
 
                 ]
             )
@@ -65,12 +65,32 @@ export function PetsProvider({ children }) {
         }
     }
 
-    useEffect(() =>{
+    useEffect(() => {
+        let unsubscribe
+        const channel = `databases.${DATABASE_ID}.collections.${TABLE_ID}.documents`
 
         if (user) {
             fetchPets()
-        }else{
+
+            unsubscribe = client.subscribe(channel, (response) => {
+                const { payload, events } = response
+                console.log(events)
+
+                if (events[0].includes("create")) {
+                    setPets((prevPets) => [...prevPets, payload])
+                }
+
+                if (events[0].includes("delete")) {
+                    setBooks((prevPets) => prevPets.filter((pet) => pet.$id !== payload.$id))
+                }
+            })
+
+        } else {
             setPets([])
+        }
+
+        return () => {
+            if (unsubscribe) unsubscribe()
         }
     }, [user])
 

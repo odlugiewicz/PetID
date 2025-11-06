@@ -9,7 +9,6 @@ import { Checkbox } from 'expo-checkbox';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 
-
 import ThemedView from "../../components/ThemedView"
 import ThemedText from "../../components/ThemedText"
 import ThemedTextInput from "../../components/ThemedTextInput"
