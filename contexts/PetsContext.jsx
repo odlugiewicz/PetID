@@ -31,7 +31,12 @@ export function PetsProvider({ children }) {
 
     async function fetchPetById(id) {
         try {
-
+            const response = await databases.getDocument(
+                DATABASE_ID,
+                TABLE_ID,
+                id
+            )
+            return response
         } catch (error) {
             console.error("Failed to fetch pet by id:", error);
         }
@@ -39,7 +44,6 @@ export function PetsProvider({ children }) {
 
     async function addPet(data) {
         try {
-
             await databases.createDocument(
                 DATABASE_ID,
                 TABLE_ID,
@@ -59,7 +63,11 @@ export function PetsProvider({ children }) {
 
     async function deletePet(id) {
         try {
-
+            await databases.deleteDocument(
+                DATABASE_ID,
+                TABLE_ID,
+                id,
+            )
         } catch (error) {
             console.error("Failed to delete pet:", error);
         }

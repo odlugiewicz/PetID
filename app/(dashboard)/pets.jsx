@@ -29,7 +29,7 @@ const Pets = () => {
         keyExtractor={(item) => item.$id}
         contentContainerStyle={styles.list}
         renderItem={({item}) => (
-          <Pressable>
+          <Pressable onPress={() => router.push(`/pets/${item.$id}`)}>
             <ThemedCard style={styles.card}>
               <ThemedText style={styles.title}>{item.name}</ThemedText>
               <ThemedText >{item.species}</ThemedText>
