@@ -89,7 +89,7 @@ export function PetsProvider({ children }) {
                 }
 
                 if (events[0].includes("delete")) {
-                    setBooks((prevPets) => prevPets.filter((pet) => pet.$id !== payload.$id))
+                    setPets((prevPets) => prevPets.filter((pet) => pet.$id !== payload.$id))
                 }
             })
 

@@ -1,7 +1,6 @@
 import { View, useColorScheme} from 'react-native'
 import {Colors} from '../constants/Colors'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
-import { use } from 'react'
 
 
 const ThemedView = ({ style, safe=false, ...props }) => {

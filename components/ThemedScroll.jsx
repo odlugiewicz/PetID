@@ -1,7 +1,7 @@
 import { ScrollView, useColorScheme} from 'react-native'
 import {Colors} from '../constants/Colors'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
-import { use } from 'react'
+
 
 
 const ThemedScroll = ({ style, safe=true, ...props }) => {
