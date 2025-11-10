@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableWithoutFeedback, Keyboard, Modal, Pressable, View, Platform, useColorScheme } from 'react-native'
+import { StyleSheet, Text, TouchableWithoutFeedback, Keyboard, Modal, Pressable, View, Platform, useColorScheme, Image} from 'react-native'
 import { usePets } from '../../hooks/usePets'
 import { useRouter } from 'expo-router'
 import { useState } from 'react'
@@ -7,6 +7,7 @@ import { Colors } from '../../constants/Colors'
 import { Ionicons } from '@expo/vector-icons'
 import { Checkbox } from 'expo-checkbox';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
+import * as ImagePicker from 'expo-image-picker'
 
 
 import ThemedView from "../../components/ThemedView"
@@ -29,6 +30,7 @@ const AddPet = () => {
     const [chipId, setChipId] = useState(null);
     const [passportId, setPassportId] = useState("");
     const [birthDateString, setBirthDateString] = useState("")
+    const [image, setImage] = useState(null);
 
     const [showSpeciesPicker, setShowSpeciesPicker] = useState(false)
     const [showBreedPicker, setShowBreedPicker] = useState(false)
@@ -58,22 +60,47 @@ const AddPet = () => {
         hideDatePicker();
     };
 
+    const pickImage = async () => {
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== 'granted') {
+            alert('Sorry, we need camera roll permissions to make this work!');
+            return;
+        }
+
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 1,
+        });
+
+        if (!result.canceled) {
+            // Używamy URI pierwszego zasobu
+            setImage(result.assets[0].uri);
+        }
+    };
+
 
     const handleSubmit = async () => {
         if (!name.trim() || !species.trim() || !breed.trim()) return
 
         setLoading(true)
 
-        await addPet({ name, birthDate, species, breed, chipId, passportId })
+        try{
+            await addPet({ name, birthDate, species, breed, chipId, passportId })
 
-        setName("")
-        setBirthDate(null)
-        setSpecies("")
-        setBreed("")
-        setChipId(null)
-        setPassportId("")
+            setName("")
+            setBirthDate(null)
+            setSpecies("")
+            setBreed("")
+            setChipId(null)
+            setPassportId("")
+            setImage(null)
 
-        router.replace("/pets")
+            router.replace("/pets")
+        } catch(error){
+            console.log("Submitting add pet form:", error)
+        }
 
         setLoading(false)
     }
@@ -85,6 +112,39 @@ const AddPet = () => {
                 <ThemedText title={true} style={styles.heading} safe={true}>
                     Add Pet
                 </ThemedText>
+                <Spacer />
+
+                <View style={styles.imageInputContainer}>
+                    {image ? (
+                        <Image 
+                            source={{ uri: image }} 
+                            style={styles.imagePreview} 
+                        />
+                    ) : (
+                        <View style={[styles.imagePlaceholder, { backgroundColor: theme.uiBackground, borderColor: theme.text }]}>
+                            <Ionicons name="camera-outline" size={30} color={theme.text} />
+                            <ThemedText style={{ marginTop: 10 }}>Select Photo</ThemedText>
+                        </View>
+                    )}
+
+                    <ThemedButton 
+                        onPress={pickImage} 
+                        style={{ marginTop: 10, width: '80%', alignSelf: 'center' }}
+                    >
+                        <Text style={{ color: '#F5FCFA' }}>
+                            {image ? "Change Photo" : "Select Photo"}
+                        </Text>
+                    </ThemedButton>
+
+                    {image && (
+                        <ThemedButton onPress={() => setImage(null)} style={[styles.removeImageButton, { backgroundColor: Colors.warning, width: '80%', alignSelf: 'center' }]} >
+                            <Text style={{ color: '#fff', textAlign: 'center' }}>
+                                Remove Photo
+                            </Text>
+                        </ThemedButton>
+                    )}
+                </View>
+
                 <Spacer />
 
                 <ThemedText style={styles.label}>Name</ThemedText>
@@ -359,4 +419,28 @@ const styles = StyleSheet.create({
     paragraph: {
         fontSize: 15,
     },
+    imageInputContainer: {
+        alignItems: 'center',
+        marginHorizontal: 40,
+        padding: 20,
+    },
+    imagePreview: {
+        width: 150,
+        height: 150,
+        borderRadius: 75,
+        marginBottom: 10,
+    },
+    imagePlaceholder: {
+        width: 150,
+        height: 150,
+        borderRadius: 75,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderStyle: 'dashed',
+        marginBottom: 10,
+    },
+    removeImageButton: {
+        marginTop: 10,
+    }
 })

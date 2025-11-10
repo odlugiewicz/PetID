@@ -13,8 +13,16 @@ const {logout, user} = useUser()
     <ThemedView style={styles.container} safe={true}>
 
       <ThemedText title={true} style={styles.heading}>
-        Welcome, {user.email}
+        {user.email}
       </ThemedText>
+
+      <Spacer />
+
+      <ThemedText style={styles.info}>
+        {user.name}
+      </ThemedText>
+
+      <Spacer />
 
       <Spacer />
 
@@ -36,8 +44,11 @@ const styles = StyleSheet.create({
   },
   heading: {
     fontWeight: "bold",
-    fontSize: 18,
+    fontSize: 25,
     textAlign: "center",
+  },
+  info: {
+    fontSize: 18,
   },
   button: {
     marginTop: 20,  

@@ -69,7 +69,7 @@ const DashboardLayout = () => {
       />
 
       <Tabs.Screen
-        name="books/[id]"
+        name="pets/[id]"
         options={{
           href: null,
         }}
