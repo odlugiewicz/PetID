@@ -89,6 +89,7 @@ export function PetsProvider({ children }) {
             return response
         } catch (error) {
             console.error("Failed to fetch pet by id:", error);
+            throw error;
         }
     }
 
@@ -118,6 +119,7 @@ export function PetsProvider({ children }) {
             )
         } catch (error) {
             console.error("Failed to add pet:", error);
+            throw error;
         }
     }
 
@@ -130,6 +132,7 @@ export function PetsProvider({ children }) {
             )
         } catch (error) {
             console.error("Failed to delete pet:", error);
+            throw error;
         }
     }
 

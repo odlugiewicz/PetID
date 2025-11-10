@@ -87,7 +87,7 @@ const AddPet = () => {
         setLoading(true)
 
         try{
-            await addPet({ name, birthDate, species, breed, chipId, passportId })
+            await addPet({ name, birthDate, species, breed, chipId, passportId }, image)
 
             setName("")
             setBirthDate(null)
