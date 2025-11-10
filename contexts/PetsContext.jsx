@@ -1,27 +1,34 @@
 import { createContext, useEffect, useState } from "react";
 import { ID, Permission, Role, Query } from "react-native-appwrite";
-import { databases, client, storage } from "../lib/appwrite";
+import { databases, client, storage, PET_BUCKET_ID } from "../lib/appwrite";
 import { useUser } from "../hooks/useUser";
 
 const DATABASE_ID = "69051e15000f0c86fdb1"
 const TABLE_ID = "pets"
-const BUCKET_ID = "69111f64001a3b3c4563"
 
 export const PetsContext = createContext();
 
 async function uriToFile(uri) {
+
+    if (!uri || typeof uri !== 'string') {
+        throw new Error("Invalid URI provided for file upload.");
+    }
+
     const filename = uri.substring(uri.lastIndexOf('/') + 1);
-    const type = filename.split('.').pop() === 'png' ? 'image/png' : 'image/jpeg';
+    const type = 'image/jpeg';
+
+    const finalUri = uri.startsWith('file://') || uri.startsWith('content://') ? uri : `file://${uri}`;
 
     return {
-        uri,
+        uri: finalUri,
         name: filename,
-        type,
+        type: type,
     };
 }
 
 async function uploadPetImage(imageUri, userId) {
-    if (!imageUri) {
+    if (!imageUri || PET_BUCKET_ID === "YOUR_APPWRITE_BUCKET_ID") {
+        console.error("Image URI or BUCKET ID missing for upload.");
         return null;
     }
 
@@ -29,7 +36,7 @@ async function uploadPetImage(imageUri, userId) {
         const file = await uriToFile(imageUri);
 
         const response = await storage.createFile(
-            BUCKET_ID,
+            PET_BUCKET_ID,
             ID.unique(),
             file,
             [
@@ -40,15 +47,21 @@ async function uploadPetImage(imageUri, userId) {
         return response.$id;
     } catch (error) {
         console.error("Failed to upload pet image:", error);
-        throw new Error("Failed to upload pet image");
+        throw new Error(`Upload failed: ${error.message}`);
     }
 }
 
 export function PetsProvider({ children }) {
     const [pets, setPets] = useState([]);
+    const [loading, setLoading] = useState(true);
     const { user } = useUser();
 
     async function fetchPets() {
+        if (!user) {
+            setPets([]);
+            setLoading(false);
+            return;
+        }
         try {
             const response = await databases.listDocuments(
                 DATABASE_ID,
@@ -59,9 +72,10 @@ export function PetsProvider({ children }) {
             )
 
             setPets(response.documents)
-            console.log(response.documents)
         } catch (error) {
             console.error("Failed to fetch pets:", error);
+        }finally{
+            setLoading(false);
         }
     }
 
@@ -79,10 +93,14 @@ export function PetsProvider({ children }) {
     }
 
     async function addPet(data, imageUri) {
+        if (!user) {
+            throw new Error("User not authenticated.");
+        }
+
         try {
             let imageId = null;
 
-            if (imageUri && user?.$id) {
+            if (imageUri) {
                 imageId = await uploadPetImage(imageUri, user.$id);
             }
 
@@ -116,29 +134,16 @@ export function PetsProvider({ children }) {
     }
 
 
-    async function addPetImg(path, id) {
-        const promise = storage.createFile(
-            BUCKET_ID,
-            id,
-            {
-                name: 'image.jpg',
-                type: 'image/jpeg',
-                size: 1234567,
-                uri: 'file:///path/to/file.jpg',
-            }
-        )
-    }
-
     useEffect(() => {
         let unsubscribe
         const channel = `databases.${DATABASE_ID}.collections.${TABLE_ID}.documents`
 
         if (user) {
+            setLoading(true);
             fetchPets()
 
             unsubscribe = client.subscribe(channel, (response) => {
                 const { payload, events } = response
-                console.log(events)
 
                 if (events[0].includes("create")) {
                     setPets((prevPets) => [...prevPets, payload])
@@ -151,6 +156,7 @@ export function PetsProvider({ children }) {
 
         } else {
             setPets([])
+            setLoading(false);
         }
 
         return () => {
