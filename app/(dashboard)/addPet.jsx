@@ -73,11 +73,12 @@ const AddPet = () => {
             aspect: [4, 3],
             quality: 1,
         });
-
+        
+        //console.log(`result assets [0] ${result.assets[0]}`)
         if (!result.canceled) {
-            // Używamy URI pierwszego zasobu
-            setImage(result.assets[0].uri);
+            setImage(result.assets[0]);
         }
+        setLoading(false)
     };
 
 
@@ -117,7 +118,7 @@ const AddPet = () => {
                 <View style={styles.imageInputContainer}>
                     {image ? (
                         <Image 
-                            source={{ uri: image }} 
+                            source={{ uri: image.uri }} 
                             style={styles.imagePreview} 
                         />
                     ) : (

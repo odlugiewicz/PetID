@@ -2,6 +2,7 @@ import { createContext, useEffect, useState } from "react";
 import { ID, Permission, Role, Query } from "react-native-appwrite";
 import { databases, client, storage } from "../lib/appwrite";
 import { useUser } from "../hooks/useUser";
+import { Alert, Platform } from "react-native"
 
 const DATABASE_ID = "69051e15000f0c86fdb1"
 const TABLE_ID = "pets"
@@ -11,36 +12,61 @@ export const PetsContext = createContext();
 
 async function uriToFile(uri) {
     const filename = uri.substring(uri.lastIndexOf('/') + 1);
-    const type = filename.split('.').pop() === 'png' ? 'image/png' : 'image/jpeg';
 
+    const parts = filename.split('.');
+    // Użyjemy małych liter dla rozszerzenia, aby uniknąć problemów z wielkością liter (np. .JPG vs .jpg)
+    const extension = parts.length > 1 ? parts.pop().toLowerCase() : '';
+
+    let type = 'application/octet-stream'; // Bezpieczny domyślny typ
+
+    // Poprawne mapowanie rozszerzeń na typy MIME
+    if (extension === 'png') {
+        type = 'image/png';
+    } else if (extension === 'jpg' || extension === 'jpeg') {
+        type = 'image/jpeg';
+    } else if (extension === 'heic') {
+        type = 'image/heic';
+    } else if (extension === 'heif') {
+        type = 'image/heif';
+    } else {
+        // Używamy domyślnego typu image/jpeg jako fallback, zgodnie z pierwotną intencją
+        type = 'image/jpeg';
+    }
     return {
-        uri,
+        uri: Platform.OS === 'ios' ? uri.replace('file://', '') : uri,
+        //uri,
         name: filename,
         type,
     };
 }
 
-async function uploadPetImage(imageUri, userId) {
-    if (!imageUri) {
+async function uploadPetImage(imageAsset, userId) {
+    if (!imageAsset) {
         return null;
     }
 
     try {
-        const file = await uriToFile(imageUri);
-
+        const file = {
+        uri: imageAsset.uri,
+        name: imageAsset.fileName || imageAsset.uri.split('/').pop(), // Użyj fileName lub wyciągnij z uri
+        type: imageAsset.mimeType || 'image/jpeg', // Użyj mimeType
+    };
         const response = await storage.createFile(
             BUCKET_ID,
             ID.unique(),
-            file,
+            file, // Przekaż ten obiekt
             [
                 Permission.read(Role.user(userId)),
                 Permission.delete(Role.user(userId)),
             ]
         );
+
+        console.log(`response ${response}`)
+        //Alert.alert(response)
         return response.$id;
     } catch (error) {
         console.error("Failed to upload pet image:", error);
-        throw new Error(`Failed to upload pet image: ${error}`);
+        throw new Error(`Failed to upload pet image 2 ${error}`);
     }
 }
 
@@ -78,19 +104,35 @@ export function PetsProvider({ children }) {
         }
     }
 
-    async function addPet(data, imageUri) {
+    function getPetImageUrl(imageId) {
+        if (!imageId) return null;
+
+        try {
+            // Użyj getFilePreview, aby uzyskać URL
+            const url = storage.getFilePreview(
+                BUCKET_ID,
+                imageId
+            );
+            return url.href; // Zwróć sam URL jako string
+        } catch (error) {
+            console.error("Failed to get pet image URL:", error);
+            return null;
+        }
+    }
+
+    async function addPet(data, imageAsset) {
         try {
             let imageId = null;
 
-            if (imageUri && user?.$id) {
-                imageId = await uploadPetImage(imageUri, user.$id);
+            if (imageAsset && user?.$id) {
+                imageId = await uploadPetImage(imageAsset, user.$id);
             }
 
             await databases.createDocument(
                 DATABASE_ID,
                 TABLE_ID,
                 ID.unique(),
-                { ...data, userId: user.$id, imageId: imageId},
+                { ...data, userId: user.$id, imageId: imageId },
                 [
                     Permission.read(Role.user(user.$id)),
                     Permission.update(Role.user(user.$id)),
@@ -160,7 +202,7 @@ export function PetsProvider({ children }) {
 
     return (
         <PetsContext.Provider
-            value={{ pets, fetchPets, fetchPetById, addPet, deletePet }}
+            value={{ pets, fetchPets, fetchPetById, addPet, deletePet, getPetImageUrl }}
         >
             {children}
         </PetsContext.Provider>

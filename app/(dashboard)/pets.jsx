@@ -12,7 +12,7 @@ import ThemedCard from '../../components/ThemedCard'
 
 const Pets = () => {
   const router = useRouter()
-  const { pets } = usePets()
+  const { pets, getPetImageUrl } = usePets()
 
   return (
     <TouchableWithoutFeedback>
@@ -28,14 +28,17 @@ const Pets = () => {
         data={pets}
         keyExtractor={(item) => item.$id}
         contentContainerStyle={styles.list}
-        renderItem={({item}) => (
-          <Pressable onPress={() => router.push(`/pets/${item.$id}`)}>
+        renderItem={({item}) => {
+          const imageUrl = item.imageId ? getPetImageUrl(item.imageId) : null;
+          return (
+            <Pressable onPress={() => router.push(`/pets/${item.$id}`)}>
             <ThemedCard style={styles.card}>
               <ThemedText style={styles.title}>{item.name}</ThemedText>
               <ThemedText >{item.species}</ThemedText>
             </ThemedCard>
           </Pressable>
-        )}
+          )
+        }}
       />
 
 
