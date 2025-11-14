@@ -1,7 +1,8 @@
-import { StyleSheet, TouchableWithoutFeedback, FlatList, Pressable } from 'react-native'
+import { StyleSheet, TouchableWithoutFeedback, FlatList, Pressable, Image, View } from 'react-native'
 import { useRouter } from 'expo-router'
 import { usePets } from '../../hooks/usePets'
 import { Colors } from '../../constants/Colors'
+import { Ionicons } from '@expo/vector-icons';
 
 import Spacer from "../../components/Spacer"
 import ThemedText from "../../components/ThemedText"
@@ -33,8 +34,18 @@ const Pets = () => {
           return (
             <Pressable onPress={() => router.push(`/pets/${item.$id}`)}>
             <ThemedCard style={styles.card}>
+              {imageUrl ? (
+                <Image 
+                  source={{ uri: imageUrl }} 
+                  style={styles.petImage}
+                />
+              ) : (
+                <View style={[styles.petImagePlaceholder, { backgroundColor: Colors.light.uiBackground }]}>
+                  <Ionicons name="camera-outline" size={40} color={Colors.light.text} />
+                </View>
+              )}
               <ThemedText style={styles.title}>{item.name}</ThemedText>
-              <ThemedText >{item.species}</ThemedText>
+              <ThemedText>{item.species}</ThemedText>
             </ThemedCard>
           </Pressable>
           )
@@ -90,5 +101,19 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontWeight: "bold",
     marginBottom: 10,
+  },
+  petImage: {
+    width: '100%',
+    height: 150,
+    borderRadius: 8,
+    marginBottom: 10,
+  },
+  petImagePlaceholder: {
+    width: '100%',
+    height: 150,
+    borderRadius: 8,
+    marginBottom: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 })
