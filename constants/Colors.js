@@ -18,6 +18,6 @@ export const Colors = {
     navBackground: "#E4F4F4",
     iconColor: "#abababff",
     iconColorFocused: "#5BB5C2",
-    uiBackground: "#D3EBEE",
+    uiBackground: "#e4f3f6ff",
   },
 }

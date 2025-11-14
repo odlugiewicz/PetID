@@ -27,7 +27,7 @@ const AddPet = () => {
     const [birthDate, setBirthDate] = useState("")
     const [species, setSpecies] = useState("")
     const [breed, setBreed] = useState("")
-    const [chipId, setChipId] = useState(null);
+    const [chipId, setChipId] = useState("");
     const [passportId, setPassportId] = useState("");
     const [birthDateString, setBirthDateString] = useState("")
     const [image, setImage] = useState(null);
@@ -93,7 +93,7 @@ const AddPet = () => {
             setBirthDate(null)
             setSpecies("")
             setBreed("")
-            setChipId(null)
+            setChipId("")
             setPassportId("")
             setImage(null)
 
@@ -113,7 +113,7 @@ const AddPet = () => {
             setBirthDate(null)
             setSpecies("")
             setBreed("")
-            setChipId(null)
+            setChipId("")
             setPassportId("")
             setImage(null)
             router.replace("/pets")
@@ -147,7 +147,7 @@ const AddPet = () => {
 
                     <ThemedButton
                         onPress={pickImage}
-                        style={{ marginTop: 10, width: '80%', alignSelf: 'center' }}
+                        style={{ marginTop: 10, width: '80%', alignSelf: 'center', alignItems: 'center' }}
                     >
                         <Text style={{ color: '#F5FCFA' }}>
                             {image ? "Change Photo" : "Select Photo"}
