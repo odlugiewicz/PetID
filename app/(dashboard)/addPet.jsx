@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableWithoutFeedback, Keyboard, Modal, Pressable, View, Platform, useColorScheme, Image} from 'react-native'
+import { StyleSheet, Text, TouchableWithoutFeedback, Keyboard, Modal, Pressable, View, Platform, useColorScheme, Image } from 'react-native'
 import { usePets } from '../../hooks/usePets'
 import { useRouter } from 'expo-router'
 import { useState } from 'react'
@@ -73,8 +73,7 @@ const AddPet = () => {
             aspect: [4, 3],
             quality: 1,
         });
-        
-        //console.log(`result assets [0] ${result.assets[0]}`)
+
         if (!result.canceled) {
             setImage(result.assets[0]);
         }
@@ -87,7 +86,7 @@ const AddPet = () => {
 
         setLoading(true)
 
-        try{
+        try {
             await addPet({ name, birthDate, species, breed, chipId, passportId }, image)
 
             setName("")
@@ -99,10 +98,28 @@ const AddPet = () => {
             setImage(null)
 
             router.replace("/pets")
-        } catch(error){
+        } catch (error) {
             console.log("Submitting add pet form:", error)
         }
 
+        setLoading(false)
+    }
+
+    const handleCancel = async () => {
+
+        setLoading(true)
+        try {
+            setName("")
+            setBirthDate(null)
+            setSpecies("")
+            setBreed("")
+            setChipId(null)
+            setPassportId("")
+            setImage(null)
+            router.replace("/pets")
+        } catch (error) {
+            console.log("Canceling add pet form:", error)
+        }
         setLoading(false)
     }
 
@@ -117,9 +134,9 @@ const AddPet = () => {
 
                 <View style={styles.imageInputContainer}>
                     {image ? (
-                        <Image 
-                            source={{ uri: image.uri }} 
-                            style={styles.imagePreview} 
+                        <Image
+                            source={{ uri: image.uri }}
+                            style={styles.imagePreview}
                         />
                     ) : (
                         <View style={[styles.imagePlaceholder, { backgroundColor: theme.uiBackground, borderColor: theme.text }]}>
@@ -128,8 +145,8 @@ const AddPet = () => {
                         </View>
                     )}
 
-                    <ThemedButton 
-                        onPress={pickImage} 
+                    <ThemedButton
+                        onPress={pickImage}
                         style={{ marginTop: 10, width: '80%', alignSelf: 'center' }}
                     >
                         <Text style={{ color: '#F5FCFA' }}>
@@ -294,7 +311,7 @@ const AddPet = () => {
 
                 <Spacer />
 
-                <ThemedText style={[styles.label, {color: Colors.primary}]}>Additional</ThemedText>
+                <ThemedText style={[styles.label, { color: Colors.primary }]}>Additional</ThemedText>
 
                 <Spacer />
 
@@ -318,7 +335,7 @@ const AddPet = () => {
                         />
                     )}
                 </ThemedView>
-                
+
                 <Spacer />
 
                 <ThemedView style={styles.section}>
@@ -343,13 +360,20 @@ const AddPet = () => {
 
                 <Spacer />
 
-                <ThemedButton onPress={handleSubmit} disabled={loading} style={{ alignSelf: 'center'}}>
-                    <Text style={{ color: '#fff'}}>
+                <ThemedButton onPress={handleSubmit} disabled={loading} style={{ alignSelf: 'center', width: '40%', alignItems: 'center'}} >
+                    <Text style={{ color: '#fff' }}>
                         {loading ? "Saving..." : "Add Pet"}
                     </Text>
                 </ThemedButton>
 
-                <Spacer />
+                
+                <ThemedButton onPress={handleCancel} disabled={loading} style={styles.cancel} >
+                    <Text style={{ color: '#fff' }}>
+                        {loading ? "Cancelling..." : "Cancel"}
+                    </Text>
+                </ThemedButton>
+
+                <Spacer/>
 
             </ThemedScroll>
         </TouchableWithoutFeedback >
@@ -443,5 +467,12 @@ const styles = StyleSheet.create({
     },
     removeImageButton: {
         marginTop: 10,
-    }
+    },
+    cancel: {
+        marginTop: 40,
+        backgroundColor: Colors.warning,
+        width: '40%',
+        alignSelf: "center",
+        alignItems: "center",
+    },
 })

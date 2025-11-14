@@ -9,6 +9,7 @@ import ThemedText from "../../components/ThemedText"
 import ThemedView from "../../components/ThemedView"
 import ThemedButton from '../../components/ThemedButton'
 import ThemedCard from '../../components/ThemedCard'
+import { useEffect } from 'react';
 
 
 const Pets = () => {
@@ -17,52 +18,53 @@ const Pets = () => {
 
   return (
     <TouchableWithoutFeedback>
-    <ThemedView style={styles.container} safe={true}>
+      <ThemedView style={styles.container} safe={true}>
 
-      <ThemedText title={true} style={styles.heading}>
-        Your Pets
-      </ThemedText>
-
-      <Spacer />
-
-      <FlatList 
-        data={pets}
-        keyExtractor={(item) => item.$id}
-        contentContainerStyle={styles.list}
-        renderItem={({item}) => {
-          const imageUrl = item.imageId ? getPetImageUrl(item.imageId) : null;
-          return (
-            <Pressable onPress={() => router.push(`/pets/${item.$id}`)}>
-            <ThemedCard style={styles.card}>
-              {imageUrl ? (
-                <Image 
-                  source={{ uri: imageUrl }} 
-                  style={styles.petImage}
-                />
-              ) : (
-                <View style={[styles.petImagePlaceholder, { backgroundColor: Colors.light.uiBackground }]}>
-                  <Ionicons name="camera-outline" size={40} color={Colors.light.text} />
-                </View>
-              )}
-              <ThemedText style={styles.title}>{item.name}</ThemedText>
-              <ThemedText>{item.species}</ThemedText>
-            </ThemedCard>
-          </Pressable>
-          )
-        }}
-      />
-
-
-      <ThemedButton 
-        style={styles.button}
-        onPress={() => router.push('/addPet')}
-      >
-        <ThemedText style={styles.buttonText}>
-          Add Pet
+        <ThemedText title={true} style={styles.heading}>
+          Your Pets
         </ThemedText>
-      </ThemedButton>
 
-    </ThemedView>
+        <Spacer />
+
+        <FlatList
+          data={pets}
+          keyExtractor={(item) => item.$id}
+          contentContainerStyle={styles.list}
+          width={'80%'}
+          renderItem={({ item }) => {
+            const imageUrl = item.imageId ? getPetImageUrl(item.imageId) : null;
+            console.log("Pet Image URL:", imageUrl);
+            return (
+              <Pressable onPress={() => router.push(`/pets/${item.$id}`)}>
+                <ThemedCard style={styles.card}>
+                  {imageUrl ? (
+                    <Image
+                      source={{ uri: imageUrl }}
+                    />
+                  ) : (
+                    <View style={[styles.petImagePlaceholder, { backgroundColor: Colors.light.uiBackground }]}>
+                      <Ionicons name="camera-outline" size={40} color={Colors.light.text} />
+                    </View>
+                  )}
+                  <ThemedText style={styles.title}>{item.name}</ThemedText>
+                  <ThemedText>{item.species}</ThemedText>
+                </ThemedCard>
+              </Pressable>
+            )
+          }}
+        />
+
+
+        <ThemedButton
+          style={styles.button}
+          onPress={() => router.push('/addPet')}
+        >
+          <ThemedText style={styles.buttonText}>
+            Add Pet
+          </ThemedText>
+        </ThemedButton>
+
+      </ThemedView>
     </TouchableWithoutFeedback>
   )
 }
@@ -86,7 +88,7 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   list: {
-    marginTop: 40
+    marginTop: 40,
   },
   card: {
     width: "90%",

@@ -24,6 +24,14 @@ const PetDetails = () => {
         router.replace('/pets')
     }
 
+     const handleCancel = async () => {
+        try {
+            router.replace("/pets")
+        } catch (error) {
+            console.log("Canceling pet info:", error)
+        }
+    }
+
     useEffect(() => {
         async function loadPet() {
             const petData = await fetchPetById(id)
@@ -55,6 +63,13 @@ const PetDetails = () => {
                     Delete Pet
                 </Text>
             </ThemedButton>
+
+            <ThemedButton onPress={handleCancel} style={styles.cancel}>
+                    <Text style={{ color: '#fff' }}>
+                        Cancel
+                    </Text>
+            </ThemedButton>
+
         </ThemedView>
     )
 }
@@ -76,7 +91,14 @@ const styles = StyleSheet.create({
   delete: {
     marginTop: 40,
     backgroundColor: Colors.warning,
-    width: 200,
+    width: '50%',
     alignSelf: "center",
+  },
+  cancel: {
+    marginTop: 40,
+    backgroundColor: Colors.primary,
+    width: '50%',
+    alignSelf: "center",
+    alignItems: 'center',
   },
 })
