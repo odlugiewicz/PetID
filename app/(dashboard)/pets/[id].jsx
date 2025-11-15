@@ -95,7 +95,17 @@ const PetDetails = () => {
                 params: {petId: pet.$id}
                 })} style={[styles.options, {backgroundColor: theme.uiBackground}]} >
                 <ThemedText style={{ fontSize: 20 }}>
-                    View Medical Records
+                    Medical Records
+                </ThemedText>
+                <Ionicons name="chevron-forward-outline" size={20} color={theme.text} />
+            </ThemedButton>
+
+            <ThemedButton onPress={() => router.push({
+                pathname: '/pets/passport',
+                params: {petId: pet.$id}
+                })} style={[styles.options, {backgroundColor: theme.uiBackground}]} >
+                <ThemedText style={{ fontSize: 20 }}>
+                    Passport
                 </ThemedText>
                 <Ionicons name="chevron-forward-outline" size={20} color={theme.text} />
             </ThemedButton>

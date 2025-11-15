@@ -29,13 +29,17 @@ const Pets = () => {
         <FlatList
           data={pets}
           keyExtractor={(item) => item.$id}
-          contentContainerStyle={styles.list}
+          contentContainerStyle={{ alignSelf: 'flex-start' , alignItems: 'center'}}
+          numColumns= {2}
+          style={styles.list}
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
           width={'80%'}
           renderItem={({ item }) => {
             const imageUrl = item.imageId ? getPetImageUrl(item.imageId) : null;
             console.log("Pet Image URL:", imageUrl);
             return (
-              <Pressable onPress={() => router.push(`/pets/${item.$id}`)}>
+              <Pressable onPress={() => router.push(`/pets/${item.$id}`)} style={{ flex: 1, margin:1, minWidth: '50%' }}>
                 <ThemedCard style={styles.card}>
                   {imageUrl ? (
                     <Image
@@ -89,6 +93,7 @@ const styles = StyleSheet.create({
   },
   list: {
     marginTop: 40,
+
   },
   card: {
     width: "90%",
@@ -96,8 +101,6 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     padding: 10,
     paddingLeft: 14,
-    borderLeftColor: Colors.primary,
-    borderLeftWidth: 4
   },
   title: {
     fontSize: 30,

@@ -81,6 +81,14 @@ const DashboardLayout = () => {
           href: null,
         }}
         />
+
+        <Tabs.Screen
+        name="pets/passport"
+        options={{
+          href: null,
+        }}
+        />
+
       </Tabs>
     </UserOnly>
   )

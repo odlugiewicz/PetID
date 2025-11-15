@@ -13,7 +13,7 @@ import ThemedCard from '../../../components/ThemedCard'
 import ThemedLoader from '../../../components/ThemedLoader'
 
 
-const MedicalRecord = () => {
+const Passport = () => {
     const router = useRouter()
     const colorSheme = useColorScheme()
     const theme = Colors[colorSheme] ?? Colors.light
@@ -46,14 +46,17 @@ const MedicalRecord = () => {
     return (
         <TouchableWithoutFeedback>
             <ThemedView style={styles.container} safe={true}>
+                <ThemedCard style={styles.card}>
 
-                <ThemedText title={true} style={styles.heading}>
-                    {pet.name} Medical Records
-                </ThemedText>
+                    <ThemedText title={true} style={styles.heading}>
+                        {pet.name} Passport
+                    </ThemedText>
 
-                <Spacer />
+                    <Spacer />
 
-                <FlatList />
+                    
+
+                </ThemedCard>
 
 
                 <ThemedButton onPress={() => router.push(`/pets/${pet.$id}`)} style={styles.cancel}>
@@ -67,7 +70,7 @@ const MedicalRecord = () => {
     )
 }
 
-export default MedicalRecord
+export default Passport
 
 const styles = StyleSheet.create({
     container: {
@@ -95,8 +98,7 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         padding: 10,
         paddingLeft: 14,
-        borderLeftColor: Colors.primary,
-        borderLeftWidth: 4
+
     },
     title: {
         fontSize: 30,
