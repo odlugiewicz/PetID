@@ -2,13 +2,14 @@ import { Tabs } from "expo-router"
 import { useColorScheme } from "react-native"
 import { Colors } from "../../constants/Colors"
 import { Ionicons } from '@expo/vector-icons'
-//import UserOnly from "../../components/auth/UserOnly"
+import VetOnly from "../../components/auth/VetOnly"
 
 const VetLayout = () => {
     const colorSheme = useColorScheme()
     const theme = Colors[colorSheme] ?? Colors.light
 
     return (
+        <VetOnly>
         <Tabs
             screenOptions={{
                 headerShown: false, tabBarStyle: {
@@ -61,6 +62,7 @@ const VetLayout = () => {
             />
 
         </Tabs>
+        </VetOnly>
     )
 }
 

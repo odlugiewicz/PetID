@@ -1,14 +1,14 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 
-const Patients = () => {
+const VetCalendar = () => {
   return (
     <View>
-      <Text>patients</Text>
+      <Text>vetCalendar</Text>
     </View>
   )
 }
 
-export default Patients
+export default VetCalendar
 
 const styles = StyleSheet.create({})
