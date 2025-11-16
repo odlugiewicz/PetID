@@ -29,6 +29,7 @@ const Register = () => {
         setError(null)
 
         try {
+            console.log(`Rejestracja jako ${isVet ? 'weterynarz' : 'właściciel zwierzęcia'}`);
             await register(email, password, name, phone, isVet, licenseNumber)
             
             if (isVet) {

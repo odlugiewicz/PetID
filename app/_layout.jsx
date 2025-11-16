@@ -4,6 +4,7 @@ import { Colors } from '../constants/Colors'
 import { StatusBar } from 'expo-status-bar'
 import { UserProvider } from '../contexts/UserContext'
 import { PetsProvider } from '../contexts/PetsContext'
+import { VetProvider } from '../contexts/VetContext' // <-- 1. IMPORTUJ
 
 
 const RootLayout = () => {
@@ -14,16 +15,19 @@ const RootLayout = () => {
   return (
     <UserProvider>
       <PetsProvider>
-        <StatusBar value="auto" />
-        <Stack screenOptions={{
-          headerStyle: { backgroundColor: theme.navBackground },
-          headerTintColor: theme.title,
-        }}>
-          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-          <Stack.Screen name="(dashboard)" options={{ headerShown: false }} />
-          <Stack.Screen name="index" options={{ title: 'Home' }} />
+        <VetProvider> 
+          <StatusBar value="auto" />
+          <Stack screenOptions={{
+            headerStyle: { backgroundColor: theme.navBackground },
+            headerTintColor: theme.title,
+          }}>
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+            <Stack.Screen name="(dashboard)" options={{ headerShown: false }} />
+            <Stack.Screen name="(vet)" options={{ headerShown: false }} /> {/* Upewnij się, że (vet) tu jest */}
+            <Stack.Screen name="index" options={{ title: 'Home' }} />
 
-        </Stack>
+          </Stack>
+        </VetProvider> 
       </PetsProvider>
     </UserProvider>
   )
