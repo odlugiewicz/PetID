@@ -137,8 +137,8 @@ const Register = () => {
 
                     <Spacer height={10} />
 
-                    <ThemedButton onPress={handleSubmit}>
-                        <Text style={{ color: '#F5FCFA' }}>Sign Up</Text>
+                    <ThemedButton onPress={handleSubmit} style={{ width: '40%', alignItems: 'center' }}>
+                        <Text style={{ color: '#F5FCFA', fontSize: 16 }}>Sign Up</Text>
                     </ThemedButton>
                 </ThemedCard>
 

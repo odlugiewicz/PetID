@@ -19,15 +19,30 @@ export function useVet() {
 
 export function VetProvider({ children }) {
     const [patients, setPatients] = useState([]);
+    const [vetData, setVetData] = useState(null);
     const { user } = useUser();
+
+    async function fetchVetData() {
+        if (!user || user.role !== 'vet') return;
+        
+        try {
+            const response = await databases.listDocuments(DATABASE_ID, VETS_TABLE_ID, [
+                Query.equal("userId", user.$id)
+            ]);
+
+            if (response.documents.length > 0) {
+                setVetData(response.documents[0]);
+            }
+        } catch (error) {
+            console.error("Failed to fetch vet data:", error);
+        }
+    }
 
     async function fetchPatients() {
         if (!user || user.role !== 'vet') return;
         
         try {
-
             console.log("Logika fetchPatients do implementacji w VetContext.jsx");
-
         } catch (error) {
             console.error("Failed to fetch patients:", error);
         }
@@ -39,9 +54,9 @@ export function VetProvider({ children }) {
         const channel = `databases.${DATABASE_ID}.collections.${PATIENTS_TABLE_ID}.documents`;
 
         if (user && user.role === 'vet') {
+            fetchVetData();
             fetchPatients();
 
-          
             unsubscribe = client.subscribe(channel, (response) => {
                 const { payload, events } = response;
                 console.log(events);
@@ -59,6 +74,7 @@ export function VetProvider({ children }) {
 
         } else {
             setPatients([]);
+            setVetData(null);
         }
 
         return () => {
@@ -68,7 +84,7 @@ export function VetProvider({ children }) {
 
     return (
         <VetContext.Provider
-            value={{ patients, fetchPatients }}
+            value={{ patients, vetData, fetchPatients, fetchVetData }}
         >
             {children}
         </VetContext.Provider>
