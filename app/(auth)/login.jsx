@@ -19,14 +19,25 @@ const Login = () => {
 
     const {user, login} = useUser()
 
-    const handleSubmit = async() => {
+    const handleSubmit = async () => {
         setError(null);
 
-        try{
+        try {
             await login(email, password);
-        }catch(error){
+            const userData = await account.get();
+            
+            const vets = await databases.listDocuments(DATABASE_ID, VETS_TABLE_ID, [
+              Query.equal("userId", userData.$id)
+            ]);
+
+            if (vets.documents.length > 0) {
+              router.replace('/(vet)/patients');
+            } else {
+              router.replace('/(dashboard)/pets');
+            }
+          } catch (error) {
             setError(error.message);
-        }
+          }
     }
 
     return (

@@ -8,7 +8,9 @@ const GuestOnly = ({ children }) => {
   const router = useRouter()
   
   useEffect(() => {
-    if (authChecked && user !== null) {
+    if (authChecked && user && user.role == 'vet') {
+      router.replace("/patients")
+    }else if (authChecked && user && user.role == 'user') {
       router.replace("/pets")
     }
   }, [user, authChecked])

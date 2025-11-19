@@ -16,8 +16,10 @@ import ThemedScroll from '../../components/ThemedScroll'
 const Register = () => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
-    const [name, setName] = useState('')
-    const [phone, setPhone] = useState('')
+    const [firstName, setFirstName] = useState('')
+    const [lastName, setLastName] = useState('')
+    const [phoneNumber, setPhoneNumber] = useState('')
+    const [address, setAddress] = useState('')
     const [licenseNumber, setLicenseNumber] = useState('')
     const [error, setError] = useState(null)
     const [isVet, setIsVet] = useState(false)
@@ -30,10 +32,11 @@ const Register = () => {
 
         try {
             console.log(`Rejestracja jako ${isVet ? 'weterynarz' : 'właściciel zwierzęcia'}`);
-            await register(email, password, name, phone, isVet, licenseNumber)
+            await register(email, password, firstName, phoneNumber, lastName, address, licenseNumber, isVet)
             
             if (isVet) {
                 router.replace('/(vet)/patients')
+                console.log("Przekierowano do weterynarza");
             } else {
                 router.replace('/(dashboard)/pets')
             }
@@ -94,17 +97,31 @@ const Register = () => {
 
                     <ThemedTextInput
                         style={{ width: '100%', marginBottom: 10 }}
-                        placeholder="Name"
-                        onChangeText={setName}
-                        value={name}
+                        placeholder="First Name"
+                        onChangeText={setFirstName}
+                        value={firstName}
+                    />
+
+                    <ThemedTextInput
+                        style={{ width: '100%', marginBottom: 10 }}
+                        placeholder="Last Name"
+                        onChangeText={setLastName}
+                        value={lastName}
                     />
 
                     <ThemedTextInput
                         style={{ width: '100%', marginBottom: 10 }}
                         placeholder="Phone"
                         keyboardType="phone-pad"
-                        onChangeText={setPhone}
-                        value={phone}
+                        onChangeText={setPhoneNumber}
+                        value={phoneNumber}
+                    />
+
+                    <ThemedTextInput
+                        style={{ width: '100%', marginBottom: 10 }}
+                        placeholder="Address"
+                        onChangeText={setAddress}
+                        value={address}
                     />
 
                     {isVet && (

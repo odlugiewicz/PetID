@@ -8,13 +8,13 @@ const UserOnly = ({ children }) => {
   const router = useRouter()
   
   useEffect(() => {
-    if (authChecked && user === null) {
+    if (authChecked && (!user || user.role !== 'user') ) {
       router.replace("/login")
     }
   }, [user, authChecked])
 
 
-  if (!authChecked || !user) {
+  if (!authChecked || !user || user.role !== 'user') {
     return (
       <ThemedLoader />
     )
