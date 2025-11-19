@@ -94,6 +94,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 25,
     textAlign: "center",
+    color: Colors.primary
   },
   label: {
     fontSize: 20,

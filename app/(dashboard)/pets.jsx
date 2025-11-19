@@ -63,7 +63,7 @@ const Pets = () => {
           style={styles.button}
           onPress={() => router.push('/addPet')}
         >
-          <ThemedText style={styles.buttonText}>
+          <ThemedText>
             Add Pet
           </ThemedText>
         </ThemedButton>
