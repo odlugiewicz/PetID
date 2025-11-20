@@ -98,9 +98,10 @@ const styles = StyleSheet.create({
   card: {
     width: "90%",
     marginHorizontal: "5%",
+    alignItems: 'center',
     marginVertical: 10,
-    padding: 10,
-    paddingLeft: 14,
+    padding: 15,
+    borderRadius: 25,
   },
   title: {
     fontSize: 30,

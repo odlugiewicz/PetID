@@ -2,20 +2,13 @@ import { createContext, useEffect, useState, useContext } from "react";
 import { ID, Permission, Role, Query } from "react-native-appwrite";
 import { databases, client } from "../lib/appwrite";
 import { useUser } from "../hooks/useUser"; 
+import { useVet } from "../hooks/useVets";
 
 const DATABASE_ID = "69051e15000f0c86fdb1"
 const PATIENTS_TABLE_ID = "patients";
 const VETS_TABLE_ID = "vets";
 
 export const VetContext = createContext();
-
-export function useVet() {
-    const context = useContext(VetContext);
-    if (!context) {
-        throw new Error("useVet must be used within a VetProvider");
-    }
-    return context;
-}
 
 export function VetProvider({ children }) {
     const [patients, setPatients] = useState([]);

@@ -12,12 +12,29 @@ export const UserContext = createContext();
 export function UserProvider({ children }) {
   const [user, setUser] = useState(null);
   const [authChecked, setAuthChecked] = useState(false);
+  const [userData, setUserData] = useState(null);
+
+  async function fetchUserData() {
+    if (!user || user.role !== 'user') return;
+
+    try {
+      const response = await databases.listDocuments(DATABASE_ID, PET_OWNERS_TABLE_ID, [
+        Query.equal("userId", user.$id)
+      ]);
+
+      if (response.documents.length > 0) {
+        setUserData(response.documents[0]);
+      }
+    } catch (error) {
+      console.error("Failed to fetch user data:", error);
+    }
+  }
 
   async function login(email, password) {
     try {
       await account.createEmailPasswordSession(email, password);
       const response = await account.get();
-      
+
       const vets = await databases.listDocuments(DATABASE_ID, VETS_TABLE_ID, [
         Query.equal("userId", response.$id)
       ]);
@@ -57,7 +74,7 @@ export function UserProvider({ children }) {
           DATABASE_ID,
           PET_OWNERS_TABLE_ID,
           ID.unique(),
-          {firstName: name, lastName: lastName, phoneNumber: phone, address: address, email: email, userId: userId },
+          { firstName: name, lastName: lastName, phoneNumber: phone, address: address, email: email, userId: userId },
           [
             Permission.read(Role.user(userId)),
             Permission.update(Role.user(userId)),
@@ -80,7 +97,6 @@ export function UserProvider({ children }) {
     try {
       const response = await account.get();
 
-      // Check if user is a vet
       const vets = await databases.listDocuments(DATABASE_ID, VETS_TABLE_ID, [
         Query.equal("userId", response.$id)
       ]);
@@ -101,8 +117,16 @@ export function UserProvider({ children }) {
     getInitialUserValue();
   }, []);
 
+  useEffect(() => {
+    if (user && user.role === 'user') { 
+      fetchUserData();
+    } else {
+      setUserData(null);
+    }
+  }, [user]);
+
   return (
-    <UserContext.Provider value={{ user, login, register, logout, authChecked }}>
+    <UserContext.Provider value={{ user, userData, login, register, logout, fetchUserData, authChecked }}>
       {children}
     </UserContext.Provider>
   );
