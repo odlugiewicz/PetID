@@ -35,13 +35,17 @@ const Patients = () => {
           showsHorizontalScrollIndicator={false}
           width={'80%'}
           renderItem={({ item }) => (
-            <Pressable onPress={() => router.push(`/patients/${item.$id}`)} style={{ flex: 1, margin: 1, minWidth: '50%' }}>
+            <Pressable onPress={() => router.push({
+              pathname: '/patients/[patient]',
+              params: { patient: item.$id }
+            })} style={{ flex: 1, margin: 1, minWidth: '50%' }}>
               <ThemedCard style={styles.card}>
                 <View style={[styles.patientImagePlaceholder, { backgroundColor: Colors.light.uiBackground }]}>
                   <Ionicons name="paw-outline" size={40} color={Colors.light.text} />
                 </View>
                 <ThemedText style={styles.title}>{item.name}</ThemedText>
                 <ThemedText>{item.species}</ThemedText>
+                <ThemedText>{item.breed}</ThemedText>
                 <ThemedText style={styles.owner}>{item.ownerName}</ThemedText>
               </ThemedCard>
             </Pressable>

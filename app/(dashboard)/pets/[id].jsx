@@ -14,6 +14,19 @@ import ThemedScroll from '../../../components/ThemedScroll'
 import Spacer from '../../../components/Spacer'
 
 
+const formatDateToDDMMYYYY = (dateString) => {
+    if (!dateString) return 'N/A'
+    try {
+        const date = new Date(dateString)
+        const day = String(date.getDate()).padStart(2, '0')
+        const month = String(date.getMonth() + 1).padStart(2, '0')
+        const year = date.getFullYear()
+        return `${day}-${month}-${year}`
+    } catch (error) {
+        return dateString
+    }
+}
+
 const PetDetails = () => {
     const colorSheme = useColorScheme()
     const theme = Colors[colorSheme] ?? Colors.light
@@ -42,7 +55,6 @@ const PetDetails = () => {
             const expiryTime = Date.now() + 5 * 60 * 1000
             setTokenExpiry(expiryTime)
             setTimeRemaining(300)
-            Alert.alert('Success', `Token generated: ${newToken}\n\nValid for 5 minutes`)
         } catch (error) {
             Alert.alert('Error', 'Failed to generate token')
         } finally {
@@ -82,6 +94,10 @@ const PetDetails = () => {
             setPet(petData)
         }
 
+        setToken(null)
+        setTokenExpiry(null)
+        setTimeRemaining(null)
+
         loadPet()
 
         return () => setPet(null)
@@ -107,6 +123,11 @@ const PetDetails = () => {
 
                 <ThemedText style={styles.title}>Breed:</ThemedText>
                 <ThemedText style={styles.text}>{pet.breed}</ThemedText>
+
+                <Spacer height={20} />
+
+                <ThemedText style={styles.title}>Date of Birth:</ThemedText>
+                <ThemedText style={styles.text}>{formatDateToDDMMYYYY(pet.birthDate)}</ThemedText>
 
                 {pet.passportId && (
                     <ThemedView style={{ backgroundColor: null }}>
@@ -145,9 +166,9 @@ const PetDetails = () => {
             )}
 
             {!token && (
-                <ThemedButton onPress={handleGenerateToken} disabled={generatingToken} style={[styles.options, { backgroundColor: Colors.warning }]}>
-                    <ThemedText style={{ fontSize: 20, color: '#fff' }}>
-                        {generatingToken ? 'Generating...' : 'Generate Vet Token'}
+                <ThemedButton onPress={handleGenerateToken} disabled={generatingToken} style={styles.generateTokenButton} >
+                    <ThemedText style={{ fontSize: 20, color: '#fff'}}>
+                        {generatingToken ? 'Generating...' : 'Generate Pets Code'}
                     </ThemedText>
                 </ThemedButton>
             )}
@@ -172,17 +193,19 @@ const PetDetails = () => {
                 <Ionicons name="chevron-forward-outline" size={20} color={theme.text} />
             </ThemedButton>
 
-            <ThemedButton onPress={handleDelete} style={styles.delete} >
-                <ThemedText style={{ color: '#fff', textAlign: 'center' }}>
-                    Delete Pet
-                </ThemedText>
-            </ThemedButton>
+            <ThemedView style={styles.buttonContainer}>
+                <ThemedButton onPress={handleDelete} style={styles.delete} >
+                    <ThemedText style={{ color: '#fff', textAlign: 'center' }}>
+                        Delete Pet
+                    </ThemedText>
+                </ThemedButton>
 
-            <ThemedButton onPress={() => router.push('/pets')} style={styles.button}>
-                <Text style={{ color: '#fff' }}>
-                    Cancel
-                </Text>
-            </ThemedButton>
+                <ThemedButton onPress={() => router.push('/pets')} style={styles.button}>
+                    <Text style={{ color: '#fff' }}>
+                        Cancel
+                    </Text>
+                </ThemedButton>
+            </ThemedView>
 
         </ThemedScroll >
     )
@@ -211,7 +234,8 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
     },
     card: {
-        margin: 20
+        margin: 20,
+        borderRadius: 25,
     },
     tokenTitle: {
         fontSize: 18,
@@ -242,8 +266,9 @@ const styles = StyleSheet.create({
     delete: {
         marginTop: 20,
         backgroundColor: Colors.warning,
-        width: '50%',
-        alignSelf: "center",
+        width: '45%',
+        alignSelf: "flex-start",
+        marginLeft: '2.5%',
     },
     options: {
         marginTop: 20,
@@ -256,8 +281,23 @@ const styles = StyleSheet.create({
     button: {
         marginTop: 20,
         backgroundColor: Colors.primary,
-        width: '50%',
-        alignSelf: "center",
+        width: '45%',
+        alignSelf: "flex-end",
+        marginRight: '2.5%',
         alignItems: 'center',
-    }
+    },
+    buttonContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: '100%',
+        paddingHorizontal: '2.5%',
+    },
+    generateTokenButton: {
+        marginTop: 20,
+        width: '90%',
+        alignSelf: "center",
+        backgroundColor: Colors.primary,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
 })

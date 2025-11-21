@@ -40,9 +40,26 @@ export function VetProvider({ children }) {
                 PATIENTS_TABLE_ID
             );
             const filteredPatients = response.documents.filter(p => 
-                p.vetId && Array.isArray(p.vetId) && p.vetId.some(v => v.$id === vetData.$id || v === vetData.$id)
+                p.vetId === vetData.$id || p.vetId?.$id === vetData.$id
             );
-            setPatients(filteredPatients);
+
+            const patientsWithPetData = await Promise.all(
+                filteredPatients.map(async (patient) => {
+                    try {
+                        const petData = await databases.getDocument(
+                            DATABASE_ID,
+                            "pets",
+                            patient.petId
+                        );
+                        return { ...patient, name: petData.name, species: petData.species, breed: petData.breed, ownerName: petData.ownerName };
+                    } catch (error) {
+                        console.error("Failed to fetch pet data:", error);
+                        return patient;
+                    }
+                })
+            );
+
+            setPatients(patientsWithPetData);
         } catch (error) {
             console.error("Failed to fetch patients:", error);
         }
@@ -52,7 +69,6 @@ export function VetProvider({ children }) {
         if (!user || user.role !== 'vet' || !vetData) return;
         
         try {
-            // Validate token
             const tokenResponse = await databases.listDocuments(
                 DATABASE_ID,
                 PET_TOKENS_TABLE_ID,
@@ -85,8 +101,8 @@ export function VetProvider({ children }) {
                 PATIENTS_TABLE_ID,
                 ID.unique(),
                 {
-                    petId: [tokenDoc.petId],
-                    vetId: [vetData.$id],
+                    petId: tokenDoc.petId,  
+                    vetId: vetData.$id,
                 },
                 [
                     Permission.read(Role.user(user.$id)),
@@ -103,8 +119,17 @@ export function VetProvider({ children }) {
                 { used: true }
             );
 
-            setPatients((prev) => [...prev, patientRecord]);
-            return patientRecord;
+            // Fetch pet data and add to state
+            const petData = await databases.getDocument(
+                DATABASE_ID,
+                "pets",
+                tokenDoc.petId
+            );
+
+            const patientWithPetData = { ...patientRecord, name: petData.name, species: petData.species, breed: petData.breed, ownerName: petData.ownerName };
+
+            setPatients((prev) => [...prev, patientWithPetData]);
+            return patientWithPetData;
         } catch (error) {
             console.error("Failed to add patient by token:", error);
             throw error;
