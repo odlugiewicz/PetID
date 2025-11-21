@@ -1,12 +1,12 @@
-import { createContext, useEffect, useState, useContext } from "react";
+import { createContext, useEffect, useState } from "react";
 import { ID, Permission, Role, Query } from "react-native-appwrite";
 import { databases, client } from "../lib/appwrite";
-import { useUser } from "../hooks/useUser"; 
-import { useVet } from "../hooks/useVets";
+import { useUser } from "../hooks/useUser";
 
 const DATABASE_ID = "69051e15000f0c86fdb1"
 const PATIENTS_TABLE_ID = "patients";
 const VETS_TABLE_ID = "vets";
+const PET_TOKENS_TABLE_ID = "pet_tokens";
 
 export const VetContext = createContext();
 
@@ -32,12 +32,82 @@ export function VetProvider({ children }) {
     }
 
     async function fetchPatients() {
-        if (!user || user.role !== 'vet') return;
+        if (!user || user.role !== 'vet' || !vetData) return;
         
         try {
-            console.log("Logika fetchPatients do implementacji w VetContext.jsx");
+            const response = await databases.listDocuments(
+                DATABASE_ID,
+                PATIENTS_TABLE_ID
+            );
+            const filteredPatients = response.documents.filter(p => 
+                p.vetId && Array.isArray(p.vetId) && p.vetId.some(v => v.$id === vetData.$id || v === vetData.$id)
+            );
+            setPatients(filteredPatients);
         } catch (error) {
             console.error("Failed to fetch patients:", error);
+        }
+    }
+
+    async function addPatientByToken(token) {
+        if (!user || user.role !== 'vet' || !vetData) return;
+        
+        try {
+            // Validate token
+            const tokenResponse = await databases.listDocuments(
+                DATABASE_ID,
+                PET_TOKENS_TABLE_ID,
+                [
+                    Query.equal("token", token),
+                    Query.equal("used", false)
+                ]
+            );
+
+            if (tokenResponse.documents.length === 0) {
+                throw new Error("Invalid or expired token");
+            }
+
+            const tokenDoc = tokenResponse.documents[0];
+            
+            // Check if token expired
+            if (new Date(tokenDoc.expiresAt) < new Date()) {
+                throw new Error("Token has expired");
+            }
+
+            // Fetch pet data
+            const pet = await databases.getDocument(
+                DATABASE_ID,
+                "pets",
+                tokenDoc.petId
+            );
+
+            const patientRecord = await databases.createDocument(
+                DATABASE_ID,
+                PATIENTS_TABLE_ID,
+                ID.unique(),
+                {
+                    petId: [tokenDoc.petId],
+                    vetId: [vetData.$id],
+                },
+                [
+                    Permission.read(Role.user(user.$id)),
+                    Permission.update(Role.user(user.$id)),
+                    Permission.delete(Role.user(user.$id)),
+                ]
+            );
+
+            // Mark token as used
+            await databases.updateDocument(
+                DATABASE_ID,
+                PET_TOKENS_TABLE_ID,
+                tokenDoc.$id,
+                { used: true }
+            );
+
+            setPatients((prev) => [...prev, patientRecord]);
+            return patientRecord;
+        } catch (error) {
+            console.error("Failed to add patient by token:", error);
+            throw error;
         }
     }
 
@@ -48,7 +118,6 @@ export function VetProvider({ children }) {
 
         if (user && user.role === 'vet') {
             fetchVetData();
-            fetchPatients();
 
             unsubscribe = client.subscribe(channel, (response) => {
                 const { payload, events } = response;
@@ -75,9 +144,15 @@ export function VetProvider({ children }) {
         };
     }, [user]);
 
+    useEffect(() => {
+        if (vetData) {
+            fetchPatients();
+        }
+    }, [vetData]);
+
     return (
         <VetContext.Provider
-            value={{ patients, vetData, fetchPatients, fetchVetData }}
+            value={{ patients, vetData, fetchPatients, fetchVetData, addPatientByToken }}
         >
             {children}
         </VetContext.Provider>

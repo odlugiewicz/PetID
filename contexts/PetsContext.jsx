@@ -133,6 +133,33 @@ export function PetsProvider({ children }) {
         }
     }
 
+    async function generatePetToken(petId) {
+        try {
+            // Generate simple 8-digit code
+            const randomCode = Math.floor(10000000 + Math.random() * 90000000).toString();
+            const token = randomCode;
+            
+            // Store token in database with expiration (5 minutes)
+            await databases.createDocument(
+                DATABASE_ID,
+                "pet_tokens",
+                ID.unique(),
+                {
+                    petId: petId,
+                    token: token,
+                    userId: user.$id,
+                    expiresAt: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
+                    used: false
+                }
+            );
+            
+            return token;
+        } catch (error) {
+            console.error("Failed to generate pet token:", error);
+            throw error;
+        }
+    }
+
     useEffect(() => {
         let unsubscribe
         const channel = `databases.${DATABASE_ID}.collections.${TABLE_ID}.documents`
@@ -164,7 +191,7 @@ export function PetsProvider({ children }) {
 
     return (
         <PetsContext.Provider
-            value={{ pets, fetchPets, fetchPetById, addPet, deletePet, getPetImageUrl }}
+            value={{ pets, fetchPets, fetchPetById, addPet, deletePet, getPetImageUrl, generatePetToken }}
         >
             {children}
         </PetsContext.Provider>

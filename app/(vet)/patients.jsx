@@ -1,6 +1,6 @@
 import { StyleSheet, TouchableWithoutFeedback, FlatList, Pressable, Image, View } from 'react-native'
 import { useRouter } from 'expo-router'
-import { useVet } from '../../contexts/VetContext'
+import { useVet } from '../../hooks/useVets'
 import { Colors } from '../../constants/Colors'
 import { Ionicons } from '@expo/vector-icons'
 
@@ -54,10 +54,10 @@ const Patients = () => {
 
         <ThemedButton
           style={styles.button}
-          //onPress={() => router.push('/addPet')}
+          onPress={() => router.push('/addPatient')}
         >
           <ThemedText style={styles.buttonText}>
-            Add Pet
+            Add Patient
           </ThemedText>
         </ThemedButton>
 

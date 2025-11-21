@@ -1,4 +1,4 @@
-import { StyleSheet, Text, useColorScheme} from 'react-native'
+import { StyleSheet, Text, useColorScheme, Alert, Share } from 'react-native'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useEffect, useState } from 'react'
 import { usePets } from '../../../hooks/usePets'
@@ -19,15 +19,61 @@ const PetDetails = () => {
     const theme = Colors[colorSheme] ?? Colors.light
 
     const [pet, setPet] = useState(null)
+    const [token, setToken] = useState(null)
+    const [generatingToken, setGeneratingToken] = useState(false)
+    const [tokenExpiry, setTokenExpiry] = useState(null)
+    const [timeRemaining, setTimeRemaining] = useState(null)
 
     const { id } = useLocalSearchParams()
-    const { fetchPetById, deletePet } = usePets()
+    const { fetchPetById, deletePet, generatePetToken } = usePets()
     const router = useRouter()
 
     const handleDelete = async () => {
         await deletePet(id)
         setPet(null)
         router.replace('/pets')
+    }
+
+    const handleGenerateToken = async () => {
+        setGeneratingToken(true)
+        try {
+            const newToken = await generatePetToken(id)
+            setToken(newToken)
+            const expiryTime = Date.now() + 5 * 60 * 1000
+            setTokenExpiry(expiryTime)
+            setTimeRemaining(300)
+            Alert.alert('Success', `Token generated: ${newToken}\n\nValid for 5 minutes`)
+        } catch (error) {
+            Alert.alert('Error', 'Failed to generate token')
+        } finally {
+            setGeneratingToken(false)
+        }
+    }
+
+    useEffect(() => {
+        if (!tokenExpiry) return
+
+        const interval = setInterval(() => {
+            const now = Date.now()
+            const remaining = Math.max(0, tokenExpiry - now)
+            const seconds = Math.floor(remaining / 1000)
+
+            setTimeRemaining(seconds)
+
+            if (seconds === 0) {
+                setToken(null)
+                setTokenExpiry(null)
+                clearInterval(interval)
+            }
+        }, 1000)
+
+        return () => clearInterval(interval)
+    }, [tokenExpiry])
+
+    const formatTime = (seconds) => {
+        const mins = Math.floor(seconds / 60)
+        const secs = seconds % 60
+        return `${mins}:${secs.toString().padStart(2, '0')}`
     }
 
     useEffect(() => {
@@ -55,13 +101,11 @@ const PetDetails = () => {
                 <ThemedText style={styles.header}>{pet.name}</ThemedText>
 
                 <ThemedText style={styles.title}>Species:</ThemedText>
-
                 <ThemedText style={styles.text}>{pet.species}</ThemedText>
 
                 <Spacer height={20} />
 
                 <ThemedText style={styles.title}>Breed:</ThemedText>
-
                 <ThemedText style={styles.text}>{pet.breed}</ThemedText>
 
                 {pet.passportId && (
@@ -90,10 +134,28 @@ const PetDetails = () => {
 
             </ThemedCard>
 
+            {token && (
+                <ThemedCard style={[styles.card, { backgroundColor: Colors.primary }]}>
+                    <ThemedText style={styles.tokenTitle}>Vet Invitation Token</ThemedText>
+                    <ThemedText style={styles.tokenText}>{token}</ThemedText>
+                    <ThemedText style={styles.tokenExpiry}>
+                        Expires in {formatTime(timeRemaining)}
+                    </ThemedText>
+                </ThemedCard>
+            )}
+
+            {!token && (
+                <ThemedButton onPress={handleGenerateToken} disabled={generatingToken} style={[styles.options, { backgroundColor: Colors.warning }]}>
+                    <ThemedText style={{ fontSize: 20, color: '#fff' }}>
+                        {generatingToken ? 'Generating...' : 'Generate Vet Token'}
+                    </ThemedText>
+                </ThemedButton>
+            )}
+
             <ThemedButton onPress={() => router.push({
                 pathname: '/pets/medicalRecord',
-                params: {petId: pet.$id}
-                })} style={[styles.options, {backgroundColor: theme.uiBackground}]} >
+                params: { petId: pet.$id }
+            })} style={[styles.options, { backgroundColor: theme.uiBackground }]} >
                 <ThemedText style={{ fontSize: 20 }}>
                     Medical Records
                 </ThemedText>
@@ -102,8 +164,8 @@ const PetDetails = () => {
 
             <ThemedButton onPress={() => router.push({
                 pathname: '/pets/passport',
-                params: {petId: pet.$id}
-                })} style={[styles.options, {backgroundColor: theme.uiBackground}]} >
+                params: { petId: pet.$id }
+            })} style={[styles.options, { backgroundColor: theme.uiBackground }]} >
                 <ThemedText style={{ fontSize: 20 }}>
                     Passport
                 </ThemedText>
@@ -150,6 +212,32 @@ const styles = StyleSheet.create({
     },
     card: {
         margin: 20
+    },
+    tokenTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#fff',
+        marginBottom: 10,
+    },
+    tokenText: {
+        fontSize: 16,
+        color: '#fff',
+        backgroundColor: 'rgba(0,0,0,0.2)',
+        padding: 10,
+        borderRadius: 5,
+        marginBottom: 5,
+    },
+    tokenExpiry: {
+        fontSize: 12,
+        color: '#fff',
+        opacity: 0.8,
+        marginBottom: 15,
+    },
+    shareButton: {
+        flexDirection: 'row',
+        backgroundColor: 'rgba(0,0,0,0.3)',
+        padding: 10,
+        borderRadius: 5,
     },
     delete: {
         marginTop: 20,

@@ -1,5 +1,5 @@
 import { StyleSheet, Text, ScrollView } from 'react-native'
-import { useVet } from '../../contexts/VetContext'
+import { useVet } from '../../hooks/useVets'
 import { useUser } from '../../hooks/useUser'
 import { Colors } from '../../constants/Colors'
 
