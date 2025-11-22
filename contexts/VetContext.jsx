@@ -42,7 +42,7 @@ export function VetProvider({ children }) {
             const filteredPatients = response.documents.filter(p => 
                 p.vetId === vetData.$id || p.vetId?.$id === vetData.$id
             );
-
+            
             const patientsWithPetData = await Promise.all(
                 filteredPatients.map(async (patient) => {
                     try {
@@ -51,7 +51,7 @@ export function VetProvider({ children }) {
                             "pets",
                             patient.petId
                         );
-                        return { ...patient, name: petData.name, species: petData.species, breed: petData.breed, ownerName: petData.ownerName };
+                        return { ...patient, ...petData };
                     } catch (error) {
                         console.error("Failed to fetch pet data:", error);
                         return patient;

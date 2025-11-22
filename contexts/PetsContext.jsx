@@ -135,11 +135,9 @@ export function PetsProvider({ children }) {
 
     async function generatePetToken(petId) {
         try {
-            // Generate simple 8-digit code
             const randomCode = Math.floor(10000000 + Math.random() * 90000000).toString();
             const token = randomCode;
             
-            // Store token in database with expiration (5 minutes)
             await databases.createDocument(
                 DATABASE_ID,
                 "pet_tokens",

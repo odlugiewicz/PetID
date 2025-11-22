@@ -31,15 +31,23 @@ const PatientDetails = () => {
     const theme = Colors[colorSheme] ?? Colors.light
 
     const [patient, setPatient] = useState(null)
+    const [pet, setPet] = useState(null)
 
     const { patient: patientId } = useLocalSearchParams()
     const { patients } = useVet()
     const router = useRouter()
 
     useEffect(() => {
+        console.log('Vet patients:', patients)
+        console.log('Patient ID:', patientId)
+
         if (patients && patientId) {
             const foundPatient = patients.find(p => p.$id === patientId)
             setPatient(foundPatient)
+            async function loadPet() {
+                const petData = await fetchPetById(patient.pet)
+                setPet(petData)
+            }
         }
     }, [patientId, patients])
 

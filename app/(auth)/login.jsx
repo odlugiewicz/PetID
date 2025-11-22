@@ -1,5 +1,5 @@
 import { StyleSheet, Text, Image, TouchableWithoutFeedback, Keyboard} from 'react-native'
-import { Link } from 'expo-router'
+import { Link, useRouter } from 'expo-router'
 import { Colors } from '../../constants/Colors'
 import { useState } from 'react'
 import { useUser } from '../../hooks/useUser'
@@ -16,28 +16,17 @@ const Login = () => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState(null);
-
-    const {user, login} = useUser()
+    const { login } = useUser()
+    const router = useRouter()
 
     const handleSubmit = async () => {
         setError(null);
 
         try {
             await login(email, password);
-            const userData = await account.get();
-            
-            const vets = await databases.listDocuments(DATABASE_ID, VETS_TABLE_ID, [
-              Query.equal("userId", userData.$id)
-            ]);
-
-            if (vets.documents.length > 0) {
-              router.replace('/(vet)/patients');
-            } else {
-              router.replace('/(dashboard)/pets');
-            }
-          } catch (error) {
+        } catch (error) {
             setError(error.message);
-          }
+        }
     }
 
     return (

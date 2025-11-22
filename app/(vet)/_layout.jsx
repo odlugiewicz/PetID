@@ -23,7 +23,7 @@ const VetLayout = () => {
             >
 
                 <Tabs.Screen
-                    name="calendar"
+                    name="vetCalendar"
                     options={{
                         title: "Calendar", tabBarIcon: ({ focused }) => (
                             <Ionicons
@@ -58,13 +58,6 @@ const VetLayout = () => {
                                 color={focused ? theme.iconColorFocused : theme.iconColor}
                             />
                         )
-                    }}
-                />
-
-                <Tabs.Screen
-                    name="vetCalendar"
-                    options={{
-                        href: null,
                     }}
                 />
 
