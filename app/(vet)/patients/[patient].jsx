@@ -27,27 +27,19 @@ const formatDateToDDMMYYYY = (dateString) => {
 }
 
 const PatientDetails = () => {
-    const colorSheme = useColorScheme()
-    const theme = Colors[colorSheme] ?? Colors.light
+    const colorScheme = useColorScheme()
+    const theme = Colors[colorScheme] ?? Colors.light
 
     const [patient, setPatient] = useState(null)
-    const [pet, setPet] = useState(null)
 
-    const { patient: patientId } = useLocalSearchParams()
+    const { patientId: patientId } = useLocalSearchParams()
     const { patients } = useVet()
     const router = useRouter()
 
     useEffect(() => {
-        console.log('Vet patients:', patients)
-        console.log('Patient ID:', patientId)
-
         if (patients && patientId) {
             const foundPatient = patients.find(p => p.$id === patientId)
             setPatient(foundPatient)
-            async function loadPet() {
-                const petData = await fetchPetById(patient.pet)
-                setPet(petData)
-            }
         }
     }, [patientId, patients])
 
@@ -123,7 +115,7 @@ const PatientDetails = () => {
             </ThemedCard>
 
             <ThemedButton onPress={() => router.push({
-                pathname: '/patients/medicalRecord',
+                pathname: '/patients/medicalRecords',
                 params: { patientId: patient.$id }
             })} style={[styles.options, { backgroundColor: theme.uiBackground }]} >
                 <ThemedText style={{ fontSize: 20 }}>
@@ -133,7 +125,7 @@ const PatientDetails = () => {
             </ThemedButton>
 
             <ThemedButton onPress={() => router.push('/patients')} style={styles.button}>
-                <Text style={{ color: '#fff' }}>
+                <Text style={{ color: theme.buttonText }}>
                     Back
                 </Text>
             </ThemedButton>

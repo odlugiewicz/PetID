@@ -75,6 +75,20 @@ const VetLayout = () => {
                     }}
                 />
 
+                <Tabs.Screen
+                    name="patients/medicalRecords"
+                    options={{
+                        href: null,
+                    }}
+                />
+
+                <Tabs.Screen
+                    name="patients/addRecord"
+                    options={{
+                        href: null,
+                    }}
+                />
+
             </Tabs>
         </VetOnly>
     )

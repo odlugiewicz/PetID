@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableWithoutFeedback, FlatList, Pressable, Image, View } from 'react-native'
+import { StyleSheet, TouchableWithoutFeedback, FlatList, Pressable, Image,useColorScheme, View } from 'react-native'
 import { useRouter } from 'expo-router'
 import { useVet } from '../../hooks/useVets'
 import { Colors } from '../../constants/Colors'
@@ -12,6 +12,9 @@ import ThemedCard from '../../components/ThemedCard'
 
 
 const Patients = () => {
+  const colorScheme = useColorScheme()
+  const theme = Colors[colorScheme] ?? Colors.light
+
   const router = useRouter()
   const { patients } = useVet()
 
@@ -36,18 +39,18 @@ const Patients = () => {
           width={'80%'}
           renderItem={({ item }) => (
             <Pressable onPress={() => router.push({
-                pathname: '/patients/[patient]',
-                params: { patient: item.$id }
+              pathname: '/patients/[patient]',
+              params: { patientId: item.$id }
             })} style={{ flex: 1, margin: 1, minWidth: '50%' }}>
-                <ThemedCard style={styles.card}>
-                    <View style={[styles.patientImagePlaceholder, { backgroundColor: Colors.light.uiBackground }]}>
-                        <Ionicons name="paw-outline" size={40} color={Colors.light.text} />
-                    </View>
-                    <ThemedText style={styles.title}>{item.name}</ThemedText>
-                    <ThemedText>{item.species}</ThemedText>
-                    <ThemedText>{item.breed}</ThemedText>
-                    <ThemedText style={styles.owner}>{item.ownerName}</ThemedText>
-                </ThemedCard>
+              <ThemedCard style={styles.card}>
+                <View style={[styles.patientImagePlaceholder, { backgroundColor: Colors.light.uiBackground }]}>
+                  <Ionicons name="paw-outline" size={40} color={Colors.light.text} />
+                </View>
+                <ThemedText style={styles.title}>{item.name}</ThemedText>
+                <ThemedText>{item.species}</ThemedText>
+                <ThemedText>{item.breed}</ThemedText>
+                <ThemedText style={styles.owner}>{item.ownerName}</ThemedText>
+              </ThemedCard>
             </Pressable>
           )}
         />
@@ -60,9 +63,12 @@ const Patients = () => {
           style={styles.button}
           onPress={() => router.push('/addPatient')}
         >
-          <ThemedText style={styles.buttonText}>
-            Add Patient
-          </ThemedText>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Ionicons name="add" size={20} color={theme.buttonText} style={{ marginRight: 6 }} />
+            <ThemedText style={{ color: theme.buttonText }}>
+              Add Patient
+            </ThemedText>
+          </View>
         </ThemedButton>
 
       </ThemedView>
