@@ -10,7 +10,6 @@ export const Colors = {
     iconColor: "#abababff",
     iconColorFocused: "#7EC4CF",
     uiBackground: "#333333",
-    buttonText: "#E4F4F4"
   },
   light: {
     text: "#282828",
@@ -20,6 +19,5 @@ export const Colors = {
     iconColor: "#abababff",
     iconColorFocused: "#5BB5C2",
     uiBackground: "#e4f3f6ff",
-    buttonText: "#F5FCFA"
   },
 }
