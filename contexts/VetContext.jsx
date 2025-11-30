@@ -86,12 +86,10 @@ export function VetProvider({ children }) {
 
             const tokenDoc = tokenResponse.documents[0];
             
-            // Check if token expired
             if (new Date(tokenDoc.expiresAt) < new Date()) {
                 throw new Error("Token has expired");
             }
 
-            // Fetch pet data
             const pet = await databases.getDocument(
                 DATABASE_ID,
                 "pets",
@@ -113,7 +111,6 @@ export function VetProvider({ children }) {
                 ]
             );
 
-            // Mark token as used
             await databases.updateDocument(
                 DATABASE_ID,
                 PET_TOKENS_TABLE_ID,
@@ -121,7 +118,6 @@ export function VetProvider({ children }) {
                 { used: true }
             );
 
-            // Fetch pet data and add to state
             const petData = await databases.getDocument(
                 DATABASE_ID,
                 "pets",

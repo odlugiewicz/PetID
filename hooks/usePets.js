@@ -8,7 +8,7 @@ export function usePets() {
     const context = useContext(PetsContext);
     
     if (!context) {
-        throw new Error("useUser must be used within a PetsProvider");
+        throw new Error("usePets must be used within a PetsProvider");
     }
 
     const fetchSpecies = async () => {

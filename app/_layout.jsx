@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar'
 import { UserProvider } from '../contexts/UserContext'
 import { PetsProvider } from '../contexts/PetsContext'
 import { VetProvider } from '../contexts/VetContext' // <-- 1. IMPORTUJ
+import { MedicalRecordProvider } from '../contexts/MedicalRecordContext'
 
 
 const RootLayout = () => {
@@ -15,19 +16,21 @@ const RootLayout = () => {
   return (
     <UserProvider>
       <PetsProvider>
-        <VetProvider> 
-          <StatusBar value="auto" />
-          <Stack screenOptions={{
-            headerStyle: { backgroundColor: theme.navBackground },
-            headerTintColor: theme.title,
-          }}>
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-            <Stack.Screen name="(dashboard)" options={{ headerShown: false }} />
-            <Stack.Screen name="(vet)" options={{ headerShown: false }} /> {/* Upewnij się, że (vet) tu jest */}
-            <Stack.Screen name="index" options={{ title: 'Home' }} />
+        <VetProvider>
+          <MedicalRecordProvider>
+            <StatusBar value="auto" />
+            <Stack screenOptions={{
+              headerStyle: { backgroundColor: theme.navBackground },
+              headerTintColor: theme.title,
+            }}>
+              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+              <Stack.Screen name="(dashboard)" options={{ headerShown: false }} />
+              <Stack.Screen name="(vet)" options={{ headerShown: false }} /> {/* Upewnij się, że (vet) tu jest */}
+              <Stack.Screen name="index" options={{ title: 'Home' }} />
 
-          </Stack>
-        </VetProvider> 
+            </Stack>
+          </MedicalRecordProvider>
+        </VetProvider>
       </PetsProvider>
     </UserProvider>
   )

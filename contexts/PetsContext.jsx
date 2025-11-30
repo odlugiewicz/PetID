@@ -2,7 +2,6 @@ import { createContext, useEffect, useState } from "react";
 import { ID, Permission, Role, Query } from "react-native-appwrite";
 import { databases, client, storage } from "../lib/appwrite";
 import { useUser } from "../hooks/useUser";
-import { Alert, Platform } from "react-native"
 
 const DATABASE_ID = "69051e15000f0c86fdb1"
 const TABLE_ID = "pets"

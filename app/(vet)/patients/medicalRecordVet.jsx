@@ -55,10 +55,15 @@ const MedicalRecordVet = () => {
 
                 <FlatList />
 
+                <ThemedButton onPress={() => router.push({ pathname: `/patients/addMedicalRecord`, params: { patient: pet.$id } })} style={styles.button}>
+                    <Text style={{ color: theme.text }}>
+                        Add New Record
+                    </Text>
+                </ThemedButton>
 
                 <ThemedButton onPress={() => router.push({ pathname: `/patients/[patient]`, params: { patient: pet.$id } })} style={styles.cancel}>
-                    <Text style={{ color: '#fff' }}>
-                        Cancel
+                    <Text style={{ color: theme.text }}>
+                        Back
                     </Text>
                 </ThemedButton>
 
