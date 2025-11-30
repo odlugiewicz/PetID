@@ -61,21 +61,24 @@ const AddPatient = () => {
                         onPress={handleAddPatient}
                         disabled={loading}
                         style={styles.button}
+                        width ='62%'
                     >
                         <ThemedText style={styles.buttonText}>
                             {loading ? 'Adding...' : 'Add Patient'}
                         </ThemedText>
                     </ThemedButton>
 
-                    <ThemedButton
-                        onPress={() => router.push('/addPatient/qrScanner')}
-                        style={[styles.button, { backgroundColor: Colors.secondary }]}
-                    >
-                        <ThemedText style={styles.buttonText}>
-                            Scan QR Code
-                        </ThemedText>
-                    </ThemedButton>
                 </ThemedCard>
+
+                <ThemedButton
+                    onPress={() => router.push('/patients')}
+                    style={[styles.button, { backgroundColor: Colors.warning, width: '50%' }]}
+                >
+                    <ThemedText style={styles.buttonText}>
+                        Cancel
+                    </ThemedText>
+                </ThemedButton>
+
             </ThemedScroll>
         </TouchableWithoutFeedback>
     )
@@ -111,6 +114,7 @@ const styles = StyleSheet.create({
     button: {
         marginTop: 15,
         backgroundColor: Colors.primary,
+        alignSelf: 'center', 
     },
     buttonText: {
         color: '#fff',
