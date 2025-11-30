@@ -2,6 +2,7 @@ import { StyleSheet, Text, useColorScheme, Alert } from 'react-native'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useEffect, useState } from 'react'
 import { useVet } from '../../../hooks/useVets'
+import { usePets } from '../../../hooks/usePets'
 import { Colors } from '../../../constants/Colors'
 import { Ionicons } from '@expo/vector-icons'
 
@@ -29,29 +30,38 @@ const formatDateToDDMMYYYY = (dateString) => {
 const PatientDetails = () => {
     const colorSheme = useColorScheme()
     const theme = Colors[colorSheme] ?? Colors.light
-
-    const [patient, setPatient] = useState(null)
-    const [pet, setPet] = useState(null)
-
-    const { patient: patientId } = useLocalSearchParams()
-    const { patients } = useVet()
     const router = useRouter()
 
+    const [pet, setPet] = useState(null)
+
+    const { patient: id } = useLocalSearchParams()
+    const { fetchPetById} = usePets()
+
     useEffect(() => {
-        console.log('Vet patients:', patients)
-        console.log('Patient ID:', patientId)
 
-        if (patients && patientId) {
-            const foundPatient = patients.find(p => p.$id === patientId)
-            setPatient(foundPatient)
-            async function loadPet() {
-                const petData = await fetchPetById(patient.pet)
-                setPet(petData)
-            }
+        async function loadPet() {
+            const petData = await fetchPetById(id)
+            setPet(petData)
         }
-    }, [patientId, patients])
 
-    if (!patient) {
+        loadPet()
+
+        return () => setPet(null)
+
+        // if (patients && patientId) {
+        //     const foundPatient = patients.find(p => p.$id === patientId)
+        //     const petId = foundPatient.petId
+        //     console.log('Found patient with pet id:', petId)
+        //     setPatient(foundPatient)
+        //     async function loadPet() {
+        //         const petData = await fetchPetById(patient.pet)
+        //         setPet(petData)
+        //     }
+        // }
+
+    }, [id])
+
+    if (!pet) {
         return (
             <ThemedView safe={true} style={styles.container}>
                 <ThemedLoader />
@@ -62,60 +72,46 @@ const PatientDetails = () => {
     return (
         <ThemedScroll safe={true} style={styles.container}>
             <ThemedCard style={styles.card}>
-                <ThemedText style={styles.header}>{patient.name}</ThemedText>
+                <ThemedText style={styles.header}>{pet.name}</ThemedText>
 
                 <ThemedText style={styles.title}>Species:</ThemedText>
-                <ThemedText style={styles.text}>{patient.species}</ThemedText>
+                <ThemedText style={styles.text}>{pet.species}</ThemedText>
 
                 <Spacer height={20} />
 
                 <ThemedText style={styles.title}>Breed:</ThemedText>
-                <ThemedText style={styles.text}>{patient.breed}</ThemedText>
+                <ThemedText style={styles.text}>{pet.breed}</ThemedText>
 
                 <Spacer height={20} />
 
                 <ThemedText style={styles.title}>Date of Birth:</ThemedText>
-                <ThemedText style={styles.text}>{formatDateToDDMMYYYY(patient.birthDate)}</ThemedText>
+                <ThemedText style={styles.text}>{formatDateToDDMMYYYY(pet.birthDate)}</ThemedText>
 
                 <Spacer height={20} />
 
                 <ThemedText style={styles.title}>Owner:</ThemedText>
-                <ThemedText style={styles.text}>{patient.ownerName}</ThemedText>
+                <ThemedText style={styles.text}>{pet.ownerName}</ThemedText>
 
-                <Spacer height={20} />
-
-                {patient.passportId && (
+                {pet.passportId && (
                     <ThemedView style={{ backgroundColor: null }}>
                         <Spacer height={20} />
                         <ThemedText style={styles.title}>
                             Passport Number:
                         </ThemedText>
                         <ThemedText style={styles.text}>
-                            {patient.passportId}
+                            {pet.passportId}
                         </ThemedText>
                     </ThemedView>
                 )}
 
-                {patient.chipId && (
+                {pet.chipId && (
                     <ThemedView style={{ backgroundColor: null }}>
                         <Spacer height={20} />
                         <ThemedText style={styles.title}>
                             Chip Number:
                         </ThemedText>
                         <ThemedText style={styles.text}>
-                            {patient.chipId}
-                        </ThemedText>
-                    </ThemedView>
-                )}
-
-                {patient.medicalRecordId && (
-                    <ThemedView style={{ backgroundColor: null }}>
-                        <Spacer height={20} />
-                        <ThemedText style={styles.title}>
-                            Medical Record ID:
-                        </ThemedText>
-                        <ThemedText style={styles.text}>
-                            {patient.medicalRecordId}
+                            {pet.chipId}
                         </ThemedText>
                     </ThemedView>
                 )}
@@ -123,8 +119,8 @@ const PatientDetails = () => {
             </ThemedCard>
 
             <ThemedButton onPress={() => router.push({
-                pathname: '/patients/medicalRecord',
-                params: { patientId: patient.$id }
+                pathname: '/patients/medicalRecordVet',
+                params: { petId: pet.$id }
             })} style={[styles.options, { backgroundColor: theme.uiBackground }]} >
                 <ThemedText style={{ fontSize: 20 }}>
                     Medical Records

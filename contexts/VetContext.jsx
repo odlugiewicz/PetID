@@ -43,23 +43,25 @@ export function VetProvider({ children }) {
                 p.vetId === vetData.$id || p.vetId?.$id === vetData.$id
             );
             
-            const patientsWithPetData = await Promise.all(
-                filteredPatients.map(async (patient) => {
+            const petIds = filteredPatients.map(patient => patient.petId);
+            
+            const petsData = await Promise.all(
+                petIds.map(async (petId) => {
                     try {
                         const petData = await databases.getDocument(
                             DATABASE_ID,
                             "pets",
-                            patient.petId
+                            petId
                         );
-                        return { ...patient, ...petData };
+                        return petData;
                     } catch (error) {
                         console.error("Failed to fetch pet data:", error);
-                        return patient;
+                        return null;
                     }
                 })
             );
 
-            setPatients(patientsWithPetData);
+            setPatients(petsData.filter(pet => pet !== null));
         } catch (error) {
             console.error("Failed to fetch patients:", error);
         }
