@@ -60,7 +60,7 @@ const Patients = () => {
           style={styles.button}
           onPress={() => router.push('/addPatient')}
         >
-          <ThemedText style={styles.buttonText}>
+          <ThemedText style={{ color: Colors.light.button }}>
             Add Patient
           </ThemedText>
         </ThemedButton>

@@ -13,7 +13,7 @@ export function MedicalRecordProvider({ children }) {
     const [pet, setPet] = useState(null);
     const { user } = useUser();
 
-    async function addMedicalRecord({ recordId, visitDate, diagnosis, treatment, notes, nextAppointment, vetId, petId }) {
+    async function addMedicalRecord({ title, visitDate, diagnosis, treatment, notes, nextAppointment, vetId, petId }) {
         if (!user || user.role !== 'vet' ) return;
 
         try {
@@ -22,7 +22,7 @@ export function MedicalRecordProvider({ children }) {
                 MEDRECORD_ID,
                 ID.unique(),
                 {
-                    recordId,
+                    title,
                     visitDate,
                     diagnosis: diagnosis || null,
                     treatment: treatment || null,

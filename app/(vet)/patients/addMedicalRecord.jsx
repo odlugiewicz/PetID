@@ -1,6 +1,6 @@
 import { StyleSheet, Text, TouchableWithoutFeedback, Keyboard, Pressable, View, useColorScheme } from 'react-native'
 import { useRouter, useLocalSearchParams } from 'expo-router'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useMedicalRecord } from '../../../hooks/useMedicalRecord'
 import { useVet } from '../../../hooks/useVets'
 import { Colors } from '../../../constants/Colors'
@@ -18,16 +18,20 @@ import ThemedScroll from '../../../components/ThemedScroll'
 const AddMedicalRecord = () => {
     const colorScheme = useColorScheme()
     const router = useRouter()
-    const params = useLocalSearchParams()
-    
-    const petId = params.petId
+
     const theme = Colors[colorScheme] ?? Colors.light
     const { addMedicalRecord } = useMedicalRecord()
-    const { vetData } = useVet()
+    const { vetData, fetchVetData } = useVet()
+    const { patient: petId } = useLocalSearchParams()
 
-    const [recordId, setRecordId] = useState("")
-    const [visitDate, setVisitDate] = useState(null)
-    const [visitDateString, setVisitDateString] = useState("")
+
+    const [title, setTitle] = useState("")
+    
+    const [visitDate, setVisitDate] = useState(() => new Date())
+    const [visitDateString, setVisitDateString] = useState(() => {
+        const d = new Date()
+        return d.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })
+    })
     const [diagnosis, setDiagnosis] = useState("")
     const [treatment, setTreatment] = useState("")
     const [notes, setNotes] = useState("")
@@ -77,7 +81,11 @@ const AddMedicalRecord = () => {
     }
 
     const handleSubmit = async () => {
-        if (!recordId.trim() || !visitDate || !petId || !vetData?.$id) {
+        if (!petId || !vetData?.$id) {
+            console.log("Missing petId or vetId")
+            return
+        }
+        if (!title.trim() || !visitDate || !title.trim() || !visitDateString.trim() || !diagnosis.trim() || !treatment.trim()) {
             alert("Please fill in all required fields")
             return
         }
@@ -86,26 +94,27 @@ const AddMedicalRecord = () => {
 
         try {
             await addMedicalRecord({
-                recordId: parseInt(recordId),
-                visitDate: visitDate.toISOString(),
-                diagnosis: diagnosis.trim() || null,
-                treatment: treatment.trim() || null,
+                title: title.trim() || "General Checkup",
+                visitDate: (visitDate ?? new Date()).toISOString(),
+                diagnosis: diagnosis.trim(),
+                treatment: treatment.trim(),
                 notes: notes.trim() || null,
                 nextAppointment: nextAppointment ? nextAppointment.toISOString() : null,
                 vetId: vetData.$id,
                 petId: petId
             })
 
-            setRecordId("")
-            setVisitDate(null)
-            setVisitDateString("")
+            setTitle("")
+            const now = new Date()
+            setVisitDate(now)
+            setVisitDateString(now.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }))
             setDiagnosis("")
             setTreatment("")
             setNotes("")
             setNextAppointment(null)
             setNextAppointmentString("")
 
-            router.back()
+            router.push({ pathname: `/patients/medicalRecordVet`, params: { petId: petId } })
         } catch (error) {
             console.log("Submitting add medical record form:", error)
             alert("Failed to add medical record")
@@ -117,7 +126,7 @@ const AddMedicalRecord = () => {
     const handleCancel = () => {
         setLoading(true)
         try {
-            setRecordId("")
+            setTitle("")
             setVisitDate(null)
             setVisitDateString("")
             setDiagnosis("")
@@ -125,7 +134,7 @@ const AddMedicalRecord = () => {
             setNotes("")
             setNextAppointment(null)
             setNextAppointmentString("")
-            router.back()
+            router.push({ pathname: `/patients/medicalRecordVet`, params: { petId: petId } })
         } catch (error) {
             console.log("Canceling add medical record form:", error)
         }
@@ -140,17 +149,16 @@ const AddMedicalRecord = () => {
                 </ThemedText>
                 <Spacer />
 
-                <ThemedText style={styles.label}>Record ID *</ThemedText>
+                <ThemedText style={styles.label}>Title</ThemedText>
                 <ThemedTextInput
                     style={styles.input}
-                    placeholder="Record ID"
-                    value={recordId}
-                    onChangeText={setRecordId}
-                    keyboardType="numeric"
+                    placeholder="Title"
+                    value={title}
+                    onChangeText={setTitle}
                 />
                 <Spacer />
 
-                <ThemedText style={styles.label}>Visit Date *</ThemedText>
+                <ThemedText style={styles.label}>Visit Date</ThemedText>
                 <ThemedButton
                     style={[styles.picker, { backgroundColor: theme.uiBackground }]}
                     onPress={showVisitDatePicker}
@@ -187,21 +195,29 @@ const AddMedicalRecord = () => {
 
                 <ThemedText style={styles.label}>Diagnosis</ThemedText>
                 <ThemedTextInput
-                    style={styles.input}
+                    style={styles.multiline}
                     placeholder="Diagnosis"
                     value={diagnosis}
                     onChangeText={setDiagnosis}
                     maxLength={255}
+                    multiline
+                    numberOfLines={4}
+                    blurOnSubmit={false}
+                    textAlignVertical="top"
                 />
                 <Spacer />
 
                 <ThemedText style={styles.label}>Treatment</ThemedText>
                 <ThemedTextInput
-                    style={styles.input}
+                    style={styles.multiline}
                     placeholder="Treatment"
                     value={treatment}
                     onChangeText={setTreatment}
                     maxLength={255}
+                    multiline
+                    numberOfLines={4}
+                    blurOnSubmit={false}
+                    textAlignVertical="top"
                 />
                 <Spacer />
 
@@ -213,7 +229,9 @@ const AddMedicalRecord = () => {
                     onChangeText={setNotes}
                     maxLength={500}
                     multiline
-                    numberOfLines={4}
+                    numberOfLines={6}
+                    blurOnSubmit={false}
+                    textAlignVertical="top"
                 />
                 <Spacer />
 
