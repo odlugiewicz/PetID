@@ -88,8 +88,8 @@ const MedicalRecordVet = () => {
 
                 <ThemedButton onPress={() => router.push({ pathname: `/patients/addMedicalRecord`, params: { patient: pet.$id } })} style={styles.button}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                        <Ionicons name="add" size={18} color={Colors.light.button} />
-                        <ThemedText style={{ color: Colors.light.button }}>
+                        <Ionicons name="add" size={18} color={theme.button} />
+                        <ThemedText style={{ color: theme.button }}>
                             Add New Record
                         </ThemedText>
                     </View>

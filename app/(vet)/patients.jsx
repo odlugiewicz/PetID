@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableWithoutFeedback, FlatList, Pressable, Image, View } from 'react-native'
+import { StyleSheet, TouchableWithoutFeedback, FlatList, Pressable, Image, View, useColorScheme } from 'react-native'
 import { useRouter } from 'expo-router'
 import { useVet } from '../../hooks/useVets'
 import { Colors } from '../../constants/Colors'
@@ -14,6 +14,9 @@ import ThemedCard from '../../components/ThemedCard'
 const Patients = () => {
   const router = useRouter()
   const { patients } = useVet()
+
+   const colorSheme = useColorScheme()
+    const theme = Colors[colorSheme] ?? Colors.light
 
   return (
     <TouchableWithoutFeedback>
@@ -40,8 +43,8 @@ const Patients = () => {
                 params: { patient: item.$id }
             })} style={{ flex: 1, margin: 1, minWidth: '50%' }}>
                 <ThemedCard style={styles.card}>
-                    <View style={[styles.patientImagePlaceholder, { backgroundColor: Colors.light.uiBackground }]}>
-                        <Ionicons name="paw-outline" size={40} color={Colors.light.text} />
+                    <View style={[styles.patientImagePlaceholder, { backgroundColor: theme.uiBackground }]}>
+                        <Ionicons name="paw-outline" size={40} color={theme.text} />
                     </View>
                     <ThemedText style={styles.title}>{item.name}</ThemedText>
                     <ThemedText>{item.species}</ThemedText>
