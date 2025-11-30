@@ -29,8 +29,8 @@ const Pets = () => {
         <FlatList
           data={pets}
           keyExtractor={(item) => item.$id}
-          contentContainerStyle={{ alignSelf: 'flex-start' , alignItems: 'center'}}
-          numColumns= {2}
+          contentContainerStyle={{ alignSelf: 'flex-start', alignItems: 'center' }}
+          numColumns={2}
           style={styles.list}
           showsVerticalScrollIndicator={false}
           showsHorizontalScrollIndicator={false}
@@ -39,7 +39,7 @@ const Pets = () => {
             const imageUrl = item.imageId ? getPetImageUrl(item.imageId) : null;
             console.log("Pet Image URL:", imageUrl);
             return (
-              <Pressable onPress={() => router.push(`/pets/${item.$id}`)} style={{ flex: 1, margin:1, minWidth: '50%' }}>
+              <Pressable onPress={() => router.push(`/pets/${item.$id}`)} style={{ flex: 1, margin: 1, minWidth: '50%' }}>
                 <ThemedCard style={styles.card}>
                   {imageUrl ? (
                     <Image
@@ -63,9 +63,12 @@ const Pets = () => {
           style={styles.button}
           onPress={() => router.push('/addPet')}
         >
-          <ThemedText>
-            Add Pet
-          </ThemedText>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <Ionicons name="add" size={18} color={Colors.light.button} />
+            <ThemedText style={{ color: Colors.light.button }}>
+              Add Pet
+            </ThemedText>
+          </View>
         </ThemedButton>
 
       </ThemedView>

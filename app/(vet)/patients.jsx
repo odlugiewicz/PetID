@@ -60,9 +60,12 @@ const Patients = () => {
           style={styles.button}
           onPress={() => router.push('/addPatient')}
         >
-          <ThemedText style={{ color: Colors.light.button }}>
-            Add Patient
-          </ThemedText>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <Ionicons name="add" size={18} color={Colors.light.button} />
+            <ThemedText style={{ color: Colors.light.button }}>
+              Add Patient
+            </ThemedText>
+          </View>
         </ThemedButton>
 
       </ThemedView>

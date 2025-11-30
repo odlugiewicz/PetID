@@ -413,17 +413,20 @@ const AddPet = () => {
 
                 <Spacer />
 
-                <ThemedButton onPress={handleSubmit} disabled={loading} style={{ alignSelf: 'center', width: '40%', alignItems: 'center'}} >
-                    <Text style={{ color: '#fff' }}>
-                        {loading ? "Saving..." : "Add Pet"}
-                    </Text>
-                </ThemedButton>
+                <View style={styles.buttonRow}>
+                    <ThemedButton onPress={handleCancel} disabled={loading} style={[styles.actionButton, { backgroundColor: Colors.warning }]}>
+                        <Text style={{ color: '#fff' }}>
+                            {loading ? "Cancelling..." : "Cancel"}
+                        </Text>
+                    </ThemedButton>
+                    
+                    <ThemedButton onPress={handleSubmit} disabled={loading} style={[styles.actionButton, { backgroundColor: Colors.primary }]}>
+                        <Text style={{ color: '#fff' }}>
+                            {loading ? "Saving..." : "Add Pet"}
+                        </Text>
+                    </ThemedButton>
 
-                <ThemedButton onPress={handleCancel} disabled={loading} style={styles.cancel} >
-                    <Text style={{ color: '#fff' }}>
-                        {loading ? "Cancelling..." : "Cancel"}
-                    </Text>
-                </ThemedButton>
+                </View>
 
                 <Spacer/>
 
@@ -526,5 +529,17 @@ const styles = StyleSheet.create({
         width: '40%',
         alignSelf: "center",
         alignItems: "center",
+    },
+    buttonRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginHorizontal: 40,
+    },
+    actionButton: {
+        flex: 1,
+        marginHorizontal: 5,
+        alignItems: 'center',
+        padding: 15,
+        borderRadius: 15,
     },
 })

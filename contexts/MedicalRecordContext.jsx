@@ -15,7 +15,6 @@ export function MedicalRecordProvider({ children }) {
 
     async function addMedicalRecord({ title, visitDate, diagnosis, treatment, notes, nextAppointment, vetId, petId }) {
         if (!user || user.role !== 'vet' ) return;
-
         try {
             const newRecord = await databases.createDocument(
                 DATABASE_ID,
@@ -24,8 +23,8 @@ export function MedicalRecordProvider({ children }) {
                 {
                     title,
                     visitDate,
-                    diagnosis: diagnosis || null,
-                    treatment: treatment || null,
+                    diagnosis: diagnosis,
+                    treatment: treatment,
                     notes: notes || null,
                     nextAppointment: nextAppointment || null,
                     vetId,
@@ -37,7 +36,6 @@ export function MedicalRecordProvider({ children }) {
                     Permission.delete(Role.user(user.$id))
                 ]
             );
-
             setMedicalRecords((prev) => [...prev, newRecord]);
             return newRecord;
         } catch (error) {
@@ -46,8 +44,24 @@ export function MedicalRecordProvider({ children }) {
         }
     }
 
+    async function fetchMedicalRecordsByPet(petId) {
+        if (!user) return [];
+        try {
+            const res = await databases.listDocuments(
+                DATABASE_ID,
+                MEDRECORD_ID,
+                [Query.equal('pet', petId), Query.orderDesc('visitDate')]
+            );
+            setMedicalRecords(res.documents);
+            return res.documents;
+        } catch (error) {
+            console.error('Failed to fetch medical records:', error);
+            return [];
+        }
+    }
+
     return (
-        <MedicalRecordContext.Provider value={{ medicalRecords, addMedicalRecord }}>
+        <MedicalRecordContext.Provider value={{ medicalRecords, addMedicalRecord, fetchMedicalRecordsByPet }}>
             {children}
         </MedicalRecordContext.Provider>
     );
