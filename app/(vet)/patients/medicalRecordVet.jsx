@@ -55,13 +55,15 @@ const MedicalRecordVet = () => {
     }
 
     const renderItem = ({ item }) => (
-        <ThemedCard style={styles.card}>
-            <ThemedText style={styles.title}>{item.title || 'Visit'}</ThemedText>
-            <Spacer height={8} />
-            <ThemedText>
-                {new Date(item.visitDate).toLocaleDateString('en-GB')}
-            </ThemedText>
-        </ThemedCard>
+        <Pressable onPress={() => router.push({ pathname: `/patients/medicalDetails`, params: { recordId: item.$id, petId: pet.$id } })} style={{ flex: 1, margin: 1, minWidth: '50%' }}>
+            <ThemedCard style={styles.card}>
+                <ThemedText style={styles.title}>{item.title || 'Visit'}</ThemedText>
+                <Spacer height={8} />
+                <ThemedText>
+                    {new Date(item.visitDate).toLocaleDateString('en-GB')}
+                </ThemedText>
+            </ThemedCard>
+        </Pressable>
     )
 
     return (

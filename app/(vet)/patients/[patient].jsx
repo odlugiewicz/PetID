@@ -48,17 +48,6 @@ const PatientDetails = () => {
 
         return () => setPet(null)
 
-        // if (patients && patientId) {
-        //     const foundPatient = patients.find(p => p.$id === patientId)
-        //     const petId = foundPatient.petId
-        //     console.log('Found patient with pet id:', petId)
-        //     setPatient(foundPatient)
-        //     async function loadPet() {
-        //         const petData = await fetchPetById(patient.pet)
-        //         setPet(petData)
-        //     }
-        // }
-
     }, [id])
 
     if (!pet) {
