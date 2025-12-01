@@ -2,6 +2,7 @@ import { StyleSheet, Text, View, ScrollView, useColorScheme } from 'react-native
 import React, { useState, useEffect } from 'react'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useMedicalRecord } from '../../../hooks/useMedicalRecord'
+import { databases } from '../../../lib/appwrite'
 import { Colors } from '../../../constants/Colors'
 import ThemedView from '../../../components/ThemedView'
 import ThemedText from '../../../components/ThemedText'
@@ -9,6 +10,9 @@ import ThemedCard from '../../../components/ThemedCard'
 import ThemedButton from '../../../components/ThemedButton'
 import ThemedLoader from '../../../components/ThemedLoader'
 import Spacer from '../../../components/Spacer'
+
+const DATABASE_ID = "69051e15000f0c86fdb1"
+const VETS_TABLE_ID = "vets"
 
 const MedicalDetails = () => {
     const colorScheme = useColorScheme()
@@ -18,6 +22,7 @@ const MedicalDetails = () => {
     const {petId: petId} = useLocalSearchParams()
     const { medicalRecords } = useMedicalRecord()
     const [record, setRecord] = useState(null)
+    const [vetInfo, setVetInfo] = useState(null)
 
     useEffect(() => {
         if (recordId && medicalRecords.length > 0) {
@@ -25,6 +30,24 @@ const MedicalDetails = () => {
             setRecord(found)
         }
     }, [recordId, medicalRecords])
+
+    useEffect(() => {
+        async function fetchVetInfo() {
+            if (record?.vetId) {
+                try {
+                    const vetData = await databases.getDocument(
+                        DATABASE_ID,
+                        VETS_TABLE_ID,
+                        record.vetId
+                    )
+                    setVetInfo(vetData)
+                } catch (error) {
+                    console.error("Failed to fetch vet info:", error)
+                }
+            }
+        }
+        fetchVetInfo()
+    }, [record])
 
     if (!record) {
         return (
@@ -59,6 +82,28 @@ const MedicalDetails = () => {
                     </View>
 
                     <Spacer height={20} />
+
+                    {vetInfo && (
+                        <>
+                            <View style={styles.sectionColumn}>
+                                <ThemedText style={styles.label}>Veterinarian:</ThemedText>
+                                <ThemedText style={styles.value}>
+                                    {vetInfo.firstName} {vetInfo.lastName}
+                                </ThemedText>
+                                
+                                <ThemedText style={[styles.value, { fontSize: 14, opacity: 0.7 }]}>
+                                   Licence Nr. {vetInfo.licenseNumber}
+                                </ThemedText>
+                                
+                                {vetInfo.phoneNumber && (
+                                    <ThemedText style={[styles.value, { fontSize: 14, opacity: 0.7 }]}>
+                                        Phone Nr. {vetInfo.phoneNumber}
+                                    </ThemedText>
+                                )}
+                            </View>
+                            <Spacer height={20} />
+                        </>
+                    )}
 
                     <View style={styles.sectionColumn}>
                         <ThemedText style={styles.label}>Diagnosis:</ThemedText>
