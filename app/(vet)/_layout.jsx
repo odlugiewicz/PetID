@@ -96,6 +96,13 @@ const VetLayout = () => {
                     }}
                 />
 
+                <Tabs.Screen
+                    name="patients/passportVet"
+                    options={{
+                        href: null,
+                    }}
+                />
+
             </Tabs>
         </VetOnly>
     )
