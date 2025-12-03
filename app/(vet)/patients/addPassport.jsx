@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, TouchableWithoutFeedback, Keyboard, useColorScheme, Alert } from 'react-native'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter, useLocalSearchParams } from 'expo-router'
 import { Colors } from '../../../constants/Colors'
 import { Ionicons } from '@expo/vector-icons'
@@ -32,13 +32,40 @@ const AddPassport = () => {
         const d = new Date()
         return d.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })
     })
+    const [expiryDate, setExpiryDate] = useState(() => {
+        const d = new Date()
+        d.setFullYear(d.getFullYear() + 3)
+        return d
+    })
+    const [expiryDateString, setExpiryDateString] = useState(() => {
+        const d = new Date()
+        d.setFullYear(d.getFullYear() + 3)
+        return d.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })
+    })
     const [issuingCountry, setIssuingCountry] = useState("")
     const [issuingAuthority, setIssuingAuthority] = useState("")
+    
+    const [petsName, setPetsName] = useState("")
+    const [petsNationality, setPetsNationality] = useState("")
+    const [petsBirthDate, setPetsBirthDate] = useState(null)
+    const [petsBirthDateString, setPetsBirthDateString] = useState("")
+    const [petColor, setPetColor] = useState("")
+    const [distinguishingMarks, setDistinguishingMarks] = useState("")
+    
     const [ownerName, setOwnerName] = useState("")
     const [ownerAddress, setOwnerAddress] = useState("")
     const [ownerPhone, setOwnerPhone] = useState("")
+    
+    const [rabiesVaccinationDate, setRabiesVaccinationDate] = useState(null)
+    const [rabiesVaccinationDateString, setRabiesVaccinationDateString] = useState("")
+    const [rabiesVaccineName, setRabiesVaccineName] = useState("")
+    const [rabiesBatchNumber, setRabiesBatchNumber] = useState("")
+    
+    const [otherPreventiveMeasures, setOtherPreventiveMeasures] = useState("")
 
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
+    const [isPetsBirthDatePickerVisible, setPetsBirthDatePickerVisibility] = useState(false)
+    const [isRabiesVacDatePickerVisible, setRabiesVacDatePickerVisibility] = useState(false)
     const [loading, setLoading] = useState(false)
 
     const showDatePicker = () => {
@@ -59,6 +86,45 @@ const AddPassport = () => {
         setIssueDate(date)
         hideDatePicker()
     }
+
+    const showPetsBirthDatePicker = () => {
+        setPetsBirthDatePickerVisibility(true)
+    }
+
+    const hidePetsBirthDatePicker = () => {
+        setPetsBirthDatePickerVisibility(false)
+    }
+
+    const handlePetsBirthDateConfirm = (date) => {
+        const formattedDate = date.toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        })
+        setPetsBirthDateString(formattedDate)
+        setPetsBirthDate(date)
+        hidePetsBirthDatePicker()
+    }
+
+    const showRabiesVacDatePicker = () => {
+        setRabiesVacDatePickerVisibility(true)
+    }
+
+    const hideRabiesVacDatePicker = () => {
+        setRabiesVacDatePickerVisibility(false)
+    }
+
+    const handleRabiesVacDateConfirm = (date) => {
+        const formattedDate = date.toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        })
+        setRabiesVaccinationDateString(formattedDate)
+        setRabiesVaccinationDate(date)
+        hideRabiesVacDatePicker()
+    }
+
 
     const handleSubmit = async () => {
         if (!passportNumber.trim() || !issuingCountry.trim() || !ownerName.trim()) {
@@ -81,11 +147,26 @@ const AddPassport = () => {
                 {
                     passportNumber: passportNumber.trim(),
                     issueDate: issueDate.toISOString(),
+                    expiryDate: expiryDate.toISOString(),
                     issuingCountry: issuingCountry.trim(),
                     issuingAuthority: issuingAuthority.trim() || null,
+                    
+                    petsName: petsName.trim() || null,
+                    petsNationality: petsNationality.trim() || null,
+                    petsBirthDate: petsBirthDate ? petsBirthDate.toISOString() : null,
+                    petColor: petColor.trim() || null,
+                    distinguishingMarks: distinguishingMarks.trim() || null,
+                    
                     ownerName: ownerName.trim(),
                     ownerAddress: ownerAddress.trim() || null,
                     ownerPhone: ownerPhone.trim() || null,
+                    
+                    rabiesVaccinationDate: rabiesVaccinationDate ? rabiesVaccinationDate.toISOString() : null,
+                    rabiesVaccineName: rabiesVaccineName.trim() || null,
+                    rabiesBatchNumber: rabiesBatchNumber.trim() || null,
+                    
+                    otherPreventiveMeasures: otherPreventiveMeasures.trim() || null,
+                    
                     petId: petId
                 },
                 [
@@ -95,7 +176,6 @@ const AddPassport = () => {
                 ]
             )
 
-            // Update pet document with passportId
             await databases.updateDocument(
                 DATABASE_ID,
                 PETS_TABLE_ID,
@@ -106,7 +186,7 @@ const AddPassport = () => {
             )
 
             Alert.alert("Success", "Passport created successfully")
-            router.back()
+            router.replace({pathname: `/patients/[patient]`, params: { patient: petId }})
         } catch (error) {
             console.error("Failed to create passport:", error)
             Alert.alert("Error", "Failed to create passport. Please try again.")
@@ -116,16 +196,26 @@ const AddPassport = () => {
     }
 
     const handleCancel = () => {
-        setPassportNumber("")
-        setIssueDate(new Date())
-        setIssueDateString(new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }))
-        setIssuingCountry("")
-        setIssuingAuthority("")
-        setOwnerName("")
-        setOwnerAddress("")
-        setOwnerPhone("")
-        router.back()
+        router.replace({pathname: `/patients/[patient]`, params: { patient: petId }})
     }
+
+    useEffect(() => {
+        const generatePassportNumber = () => {
+            const randomNumber = Math.floor(1000000 + Math.random() * 9000000)
+            return randomNumber.toString()
+        }
+        
+        setPassportNumber(generatePassportNumber())
+        
+        const expiry = new Date(issueDate)
+        expiry.setFullYear(expiry.getFullYear() + 3)
+        setExpiryDate(expiry)
+        setExpiryDateString(expiry.toLocaleDateString('en-GB', { 
+            day: '2-digit', 
+            month: '2-digit', 
+            year: 'numeric' 
+        }))
+    }, [])
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -135,25 +225,31 @@ const AddPassport = () => {
                 </ThemedText>
                 <Spacer />
 
-                <ThemedText style={styles.label}>Passport Number *</ThemedText>
+                <ThemedText style={[styles.sectionHeader, { color: Colors.primary }]}>
+                    Passport Information
+                </ThemedText>
+                <Spacer height={10} />
+
+                <ThemedText style={styles.label}>Passport Number </ThemedText>
                 <ThemedTextInput
                     style={styles.input}
                     placeholder="Passport Number"
                     value={passportNumber}
                     onChangeText={setPassportNumber}
+                    editable={false}
                 />
                 <Spacer />
 
-                <ThemedText style={styles.label}>Issue Date *</ThemedText>
+                <ThemedText style={styles.label}>Issue Date </ThemedText>
                 <ThemedButton
                     style={[styles.picker, { backgroundColor: theme.uiBackground }]}
                     onPress={showDatePicker}
+                    disabled={true}
                 >
                     <View style={styles.row}>
                         <ThemedText style={{ color: theme.text }}>
                             {issueDateString}
                         </ThemedText>
-                        <Ionicons name="chevron-down" size={20} color={theme.text} />
                     </View>
                 </ThemedButton>
 
@@ -165,21 +261,25 @@ const AddPassport = () => {
                     pickerContainerStyleIOS={{ backgroundColor: theme.navBackground }}
                     pickerStyleIOS={{ backgroundColor: theme.navBackground }}
                     textColor={theme.text}
-                    customConfirmButtonIOS={({ onPress }) => (
-                        <ThemedButton onPress={onPress} style={{ alignItems: "center", width: '80%', alignSelf: 'center' }}>
-                            <ThemedText>Confirm</ThemedText>
-                        </ThemedButton>
-                    )}
-                    customCancelButtonIOS={({ onPress }) => (
-                        <ThemedButton onPress={onPress} style={{ alignItems: "center", width: '80%', alignSelf: 'center' }}>
-                            <ThemedText>Cancel</ThemedText>
-                        </ThemedButton>
-                    )}
                 />
 
                 <Spacer />
 
-                <ThemedText style={styles.label}>Issuing Country *</ThemedText>
+                <ThemedText style={styles.label}>Expiry Date</ThemedText>
+                <ThemedButton
+                    style={[styles.picker, { backgroundColor: theme.uiBackground }]}
+                    disabled={true}
+                >
+                    <View style={styles.row}>
+                        <ThemedText style={{ color: theme.text }}>
+                            {expiryDateString}
+                        </ThemedText>
+                    </View>
+                </ThemedButton>
+
+                <Spacer />
+
+                <ThemedText style={styles.label}>Issuing Country </ThemedText>
                 <ThemedTextInput
                     style={styles.input}
                     placeholder="Issuing Country"
@@ -191,16 +291,86 @@ const AddPassport = () => {
                 <ThemedText style={styles.label}>Issuing Authority</ThemedText>
                 <ThemedTextInput
                     style={styles.input}
-                    placeholder="Issuing Authority"
+                    placeholder="Your Name and Surname"
                     value={issuingAuthority}
                     onChangeText={setIssuingAuthority}
                 />
+                <Spacer height={20} />
+
+                <ThemedText style={[styles.sectionHeader, { color: Colors.primary }]}>
+                    Pet Details
+                </ThemedText>
+                <Spacer height={10} />
+
+                <ThemedText style={styles.label}>Pet's Name</ThemedText>
+                <ThemedTextInput
+                    style={styles.input}
+                    placeholder="Pet's name on passport"
+                    value={petsName}
+                    onChangeText={setPetsName}
+                />
                 <Spacer />
 
-                <ThemedText style={[styles.label, { color: Colors.primary, fontSize: 20 }]}>
+                <ThemedText style={styles.label}>Pet's Nationality</ThemedText>
+                <ThemedTextInput
+                    style={styles.input}
+                    placeholder="Pet's nationality"
+                    value={petsNationality}
+                    onChangeText={setPetsNationality}
+                />
+                <Spacer />
+
+                <ThemedText style={styles.label}>Pet's Birth Date</ThemedText>
+                <ThemedButton
+                    style={[styles.picker, { backgroundColor: theme.uiBackground }]}
+                    onPress={showPetsBirthDatePicker}
+                >
+                    <View style={styles.row}>
+                        <ThemedText style={{ color: theme.text }}>
+                            {petsBirthDateString || "Select Date"}
+                        </ThemedText>
+                        <Ionicons name="chevron-down" size={20} color={theme.text} />
+                    </View>
+                </ThemedButton>
+
+                <DateTimePickerModal
+                    isVisible={isPetsBirthDatePickerVisible}
+                    mode="date"
+                    onConfirm={handlePetsBirthDateConfirm}
+                    onCancel={hidePetsBirthDatePicker}
+                    pickerContainerStyleIOS={{ backgroundColor: theme.navBackground }}
+                    pickerStyleIOS={{ backgroundColor: theme.navBackground }}
+                    textColor={theme.text}
+                />
+
+                <Spacer />
+
+                <ThemedText style={styles.label}>Color</ThemedText>
+                <ThemedTextInput
+                    style={styles.input}
+                    placeholder="Pet's color"
+                    value={petColor}
+                    onChangeText={setPetColor}
+                />
+                <Spacer />
+
+                <ThemedText style={styles.label}>Distinguishing Marks</ThemedText>
+                <ThemedTextInput
+                    style={styles.multiline}
+                    placeholder="Any prominent features or distinguishing marks"
+                    value={distinguishingMarks}
+                    onChangeText={setDistinguishingMarks}
+                    multiline
+                    numberOfLines={4}
+                    blurOnSubmit={false}
+                    textAlignVertical="top"
+                />
+                <Spacer height={20} />
+
+                <ThemedText style={[styles.sectionHeader, { color: Colors.primary }]}>
                     Owner Information
                 </ThemedText>
-                <Spacer />
+                <Spacer height={10} />
 
                 <ThemedText style={styles.label}>Owner Name *</ThemedText>
                 <ThemedTextInput
@@ -231,6 +401,73 @@ const AddPassport = () => {
                     value={ownerPhone}
                     onChangeText={setOwnerPhone}
                     keyboardType="phone-pad"
+                />
+                <Spacer />
+
+                <ThemedText style={[styles.sectionHeader, { color: Colors.primary }]}>
+                    Rabies Vaccination
+                </ThemedText>
+                <Spacer height={10} />
+
+                <ThemedText style={styles.label}>Vaccination Date</ThemedText>
+                <ThemedButton
+                    style={[styles.picker, { backgroundColor: theme.uiBackground }]}
+                    onPress={showRabiesVacDatePicker}
+                >
+                    <View style={styles.row}>
+                        <ThemedText style={{ color: theme.text }}>
+                            {rabiesVaccinationDateString || "Select Date"}
+                        </ThemedText>
+                        <Ionicons name="chevron-down" size={20} color={theme.text} />
+                    </View>
+                </ThemedButton>
+
+                <DateTimePickerModal
+                    isVisible={isRabiesVacDatePickerVisible}
+                    mode="date"
+                    onConfirm={handleRabiesVacDateConfirm}
+                    onCancel={hideRabiesVacDatePicker}
+                    pickerContainerStyleIOS={{ backgroundColor: theme.navBackground }}
+                    pickerStyleIOS={{ backgroundColor: theme.navBackground }}
+                    textColor={theme.text}
+                />
+
+                <Spacer />
+
+                <ThemedText style={styles.label}>Vaccine Name</ThemedText>
+                <ThemedTextInput
+                    style={styles.input}
+                    placeholder="Rabies vaccine name"
+                    value={rabiesVaccineName}
+                    onChangeText={setRabiesVaccineName}
+                />
+                <Spacer />
+
+                <ThemedText style={styles.label}>Batch Number</ThemedText>
+                <ThemedTextInput
+                    style={styles.input}
+                    placeholder="Vaccine batch number"
+                    value={rabiesBatchNumber}
+                    onChangeText={setRabiesBatchNumber}
+                />
+                <Spacer height={20} />
+
+                {/* Other Preventive Measures */}
+                <ThemedText style={[styles.sectionHeader, { color: Colors.primary }]}>
+                    Other Preventive Health Measures
+                </ThemedText>
+                <Spacer height={10} />
+
+                <ThemedText style={styles.label}>Preventive Measures</ThemedText>
+                <ThemedTextInput
+                    style={styles.multiline}
+                    placeholder="Details regarding preventive measures for diseases or infections other than rabies"
+                    value={otherPreventiveMeasures}
+                    onChangeText={setOtherPreventiveMeasures}
+                    multiline
+                    numberOfLines={6}
+                    blurOnSubmit={false}
+                    textAlignVertical="top"
                 />
                 <Spacer />
 
@@ -270,11 +507,16 @@ const styles = StyleSheet.create({
         fontSize: 18,
         textAlign: "center",
     },
+    sectionHeader: {
+        fontSize: 20,
+        fontWeight: "bold",
+        marginLeft: 40,
+    },
     label: {
         flex: 1,
         justifyContent: "center",
         marginLeft: 40,
-        fontSize: 18,
+        fontSize: 16,
     },
     input: {
         padding: 20,
