@@ -117,15 +117,27 @@ const PatientDetails = () => {
                 <Ionicons name="chevron-forward-outline" size={20} color={theme.text} />
             </ThemedButton>
 
-            <ThemedButton onPress={() => router.push({
-                pathname: '/patients/passportVet',
-                params: { petId: pet.$id }
-            })} style={[styles.options, { backgroundColor: theme.uiBackground }]} >
-                <ThemedText style={{ fontSize: 20 }}>
-                    Passport
-                </ThemedText>
-                <Ionicons name="chevron-forward-outline" size={20} color={theme.text} />
-            </ThemedButton>
+            {pet.passportId ? (
+                <ThemedButton onPress={() => router.push({
+                    pathname: '/patients/passportVet',
+                    params: { petId: pet.$id }
+                })} style={[styles.options, { backgroundColor: theme.uiBackground }]} >
+                    <ThemedText style={{ fontSize: 20 }}>
+                        Passport
+                    </ThemedText>
+                    <Ionicons name="chevron-forward-outline" size={20} color={theme.text} />
+                </ThemedButton>
+            ) : (
+                <ThemedButton onPress={() => router.push({
+                    pathname: '/patients/createPassport',
+                    params: { petId: pet.$id }
+                })} style={[styles.createPassportButton, { backgroundColor: Colors.primary }]} >
+                    <Ionicons name="add-circle-outline" size={24} color="#fff" />
+                    <ThemedText style={{ fontSize: 20, color: '#fff', marginLeft: 10 }}>
+                        Create Passport
+                    </ThemedText>
+                </ThemedButton>
+            )}
 
             <ThemedButton onPress={() => router.push('/patients')} style={styles.button}>
                 <Text style={{ color: '#fff' }}>
@@ -170,6 +182,15 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
+    },
+    createPassportButton: {
+        marginTop: 20,
+        width: '90%',
+        alignSelf: "center",
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 15,
     },
     button: {
         marginTop: 20,

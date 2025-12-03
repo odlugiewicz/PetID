@@ -111,7 +111,6 @@ const CalendarUser = () => {
         setLoading(true)
 
         try {
-            // Create a date at noon to avoid timezone issues
             const [year, month, day] = selectedDate.split('-')
             const eventDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), 12, 0, 0)
             
@@ -133,7 +132,6 @@ const CalendarUser = () => {
                 ]
             )
 
-            // Add to local state
             const newEvent = {
                 id: newEventDoc.$id,
                 title: eventTitle,
@@ -146,7 +144,6 @@ const CalendarUser = () => {
                 [selectedDate]: [...(prev[selectedDate] || []), newEvent]
             }))
 
-            // Reset form
             setEventTitle('')
             setEventDescription('')
             setEventTime(null)
@@ -173,14 +170,12 @@ const CalendarUser = () => {
                     style: 'destructive',
                     onPress: async () => {
                         try {
-                            // Delete from Appwrite
                             await databases.deleteDocument(
                                 DATABASE_ID,
                                 EVENTS_TABLE_ID,
                                 eventId
                             )
 
-                            // Remove from local state
                             setEvents(prev => ({
                                 ...prev,
                                 [selectedDate]: prev[selectedDate].filter(e => e.id !== eventId)
@@ -266,7 +261,7 @@ const CalendarUser = () => {
                             onPress={() => setModalVisible(true)}
                             style={styles.addButton}
                         >
-                            <Ionicons name="add" size={24} color={theme.button} />
+                            <Ionicons name="add" size={20} color={theme.button} />
                         </ThemedButton>
                     </View>
 
@@ -292,7 +287,7 @@ const CalendarUser = () => {
             >
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                     <View style={styles.modalOverlay}>
-                        <TouchableWithoutFeedback>
+                        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                             <View style={[styles.modalContent, { backgroundColor: theme.background }]}>
                                 <ThemedText style={styles.modalTitle}>Add Event</ThemedText>
 
