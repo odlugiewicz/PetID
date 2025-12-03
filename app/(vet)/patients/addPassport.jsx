@@ -4,7 +4,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router'
 import { Colors } from '../../../constants/Colors'
 import { Ionicons } from '@expo/vector-icons'
 import DateTimePickerModal from "react-native-modal-datetime-picker"
-import { ID, Permission, Role } from 'react-native-appwrite'
+import { ID, Permission, Role, Query } from 'react-native-appwrite'
 import { databases } from '../../../lib/appwrite'
 import { useUser } from '../../../hooks/useUser'
 
@@ -18,6 +18,7 @@ import ThemedScroll from '../../../components/ThemedScroll'
 const DATABASE_ID = "69051e15000f0c86fdb1"
 const PASSPORTS_TABLE_ID = "passports"
 const PETS_TABLE_ID = "pets"
+const VETS_TABLE_ID = "vets"
 
 const AddPassport = () => {
     const colorScheme = useColorScheme()
@@ -44,23 +45,23 @@ const AddPassport = () => {
     })
     const [issuingCountry, setIssuingCountry] = useState("")
     const [issuingAuthority, setIssuingAuthority] = useState("")
-    
+
     const [petsName, setPetsName] = useState("")
     const [petsNationality, setPetsNationality] = useState("")
     const [petsBirthDate, setPetsBirthDate] = useState(null)
     const [petsBirthDateString, setPetsBirthDateString] = useState("")
     const [petColor, setPetColor] = useState("")
     const [distinguishingMarks, setDistinguishingMarks] = useState("")
-    
+
     const [ownerName, setOwnerName] = useState("")
     const [ownerAddress, setOwnerAddress] = useState("")
     const [ownerPhone, setOwnerPhone] = useState("")
-    
+
     const [rabiesVaccinationDate, setRabiesVaccinationDate] = useState(null)
     const [rabiesVaccinationDateString, setRabiesVaccinationDateString] = useState("")
     const [rabiesVaccineName, setRabiesVaccineName] = useState("")
     const [rabiesBatchNumber, setRabiesBatchNumber] = useState("")
-    
+
     const [otherPreventiveMeasures, setOtherPreventiveMeasures] = useState("")
 
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
@@ -150,24 +151,24 @@ const AddPassport = () => {
                     expiryDate: expiryDate.toISOString(),
                     issuingCountry: issuingCountry.trim(),
                     issuingAuthority: issuingAuthority.trim() || null,
-                    
+
                     petsName: petsName.trim() || null,
                     petsNationality: petsNationality.trim() || null,
                     petsBirthDate: petsBirthDate ? petsBirthDate.toISOString() : null,
                     petColor: petColor.trim() || null,
                     distinguishingMarks: distinguishingMarks.trim() || null,
-                    
+
                     ownerName: ownerName.trim(),
                     ownerAddress: ownerAddress.trim() || null,
                     ownerPhone: ownerPhone.trim() || null,
-                    
+
                     rabiesVaccinationDate: rabiesVaccinationDate ? rabiesVaccinationDate.toISOString() : null,
                     rabiesVaccineName: rabiesVaccineName.trim() || null,
                     rabiesBatchNumber: rabiesBatchNumber.trim() || null,
-                    
+
                     otherPreventiveMeasures: otherPreventiveMeasures.trim() || null,
-                    
-                    petId: petId
+
+                    pet: petId
                 },
                 [
                     Permission.read(Role.user(user.$id)),
@@ -186,7 +187,7 @@ const AddPassport = () => {
             )
 
             Alert.alert("Success", "Passport created successfully")
-            router.replace({pathname: `/patients/[patient]`, params: { patient: petId }})
+            router.replace({ pathname: `/patients/[patient]`, params: { patient: petId } })
         } catch (error) {
             console.error("Failed to create passport:", error)
             Alert.alert("Error", "Failed to create passport. Please try again.")
@@ -196,7 +197,7 @@ const AddPassport = () => {
     }
 
     const handleCancel = () => {
-        router.replace({pathname: `/patients/[patient]`, params: { patient: petId }})
+        router.replace({ pathname: `/patients/[patient]`, params: { patient: petId } })
     }
 
     useEffect(() => {
@@ -204,18 +205,114 @@ const AddPassport = () => {
             const randomNumber = Math.floor(1000000 + Math.random() * 9000000)
             return randomNumber.toString()
         }
-        
+
         setPassportNumber(generatePassportNumber())
-        
+
         const expiry = new Date(issueDate)
         expiry.setFullYear(expiry.getFullYear() + 3)
         setExpiryDate(expiry)
-        setExpiryDateString(expiry.toLocaleDateString('en-GB', { 
-            day: '2-digit', 
-            month: '2-digit', 
-            year: 'numeric' 
+        setExpiryDateString(expiry.toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
         }))
     }, [])
+
+    useEffect(() => {
+        const fetchPetData = async () => {
+            if (!petId) return
+
+            try {
+                const petDoc = await databases.getDocument(
+                    DATABASE_ID,
+                    PETS_TABLE_ID,
+                    petId
+                )
+
+                if (petDoc.name) {
+                    setPetsName(petDoc.name)
+                }
+
+                if (petDoc.birthDate) {
+                    const birthDate = new Date(petDoc.birthDate)
+                    setPetsBirthDate(birthDate)
+                    setPetsBirthDateString(birthDate.toLocaleDateString('en-GB', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric'
+                    }))
+                }
+
+                if (petDoc.color) {
+                    setPetColor(petDoc.color)
+                }
+
+                if (petDoc.ownerId) {
+                    const ownerId = typeof petDoc.ownerId === 'string' ? petDoc.ownerId : petDoc.ownerId.$id
+
+                    try {
+                        const ownerDocs = await databases.listDocuments(
+                            DATABASE_ID,
+                            'pet_owners',
+                            [
+                                Query.equal('$id', ownerId)
+                            ]
+                        )
+
+                        if (ownerDocs.documents.length > 0) {
+                            const ownerDoc = ownerDocs.documents[0]
+                            
+                            if (ownerDoc.firstName && ownerDoc.lastName) {
+                                setOwnerName(`${ownerDoc.firstName} ${ownerDoc.lastName}`)
+                            }
+
+                            if (ownerDoc.phoneNumber) {
+                                setOwnerPhone(ownerDoc.phoneNumber)
+                            }
+
+                            if (ownerDoc.address) {
+                                setOwnerAddress(ownerDoc.address)
+                            }
+                        }
+                    } catch (ownerError) {
+                        console.error("Failed to fetch owner data:", ownerError)
+                    }
+                }
+
+            } catch (error) {
+                console.error("Failed to fetch pet data:", error)
+            }
+        }
+
+        fetchPetData()
+    }, [petId])
+
+    useEffect(() => {
+        const fetchVetData = async () => {
+            if (!user) return
+
+            try {
+                const vetDocs = await databases.listDocuments(
+                    DATABASE_ID,
+                    VETS_TABLE_ID,
+                    [
+                        Query.equal('userId', user.$id)
+                    ]
+                )
+
+                if (vetDocs.documents.length > 0) {
+                    const vetDoc = vetDocs.documents[0]
+                    if (vetDoc.firstName && vetDoc.lastName) {
+                        setIssuingAuthority(`${vetDoc.firstName} ${vetDoc.lastName}`)
+                    }
+                }
+            } catch (error) {
+                console.error("Failed to fetch vet data:", error)
+            }
+        }
+
+        fetchVetData()
+    }, [user])
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -294,6 +391,7 @@ const AddPassport = () => {
                     placeholder="Your Name and Surname"
                     value={issuingAuthority}
                     onChangeText={setIssuingAuthority}
+                    editable={false}
                 />
                 <Spacer height={20} />
 
@@ -472,9 +570,9 @@ const AddPassport = () => {
                 <Spacer />
 
                 <View style={styles.buttonRow}>
-                    <ThemedButton 
-                        onPress={handleSubmit} 
-                        disabled={loading} 
+                    <ThemedButton
+                        onPress={handleSubmit}
+                        disabled={loading}
                         style={[styles.actionButton, { backgroundColor: Colors.primary }]}
                     >
                         <Text style={{ color: '#fff' }}>
@@ -482,9 +580,9 @@ const AddPassport = () => {
                         </Text>
                     </ThemedButton>
 
-                    <ThemedButton 
-                        onPress={handleCancel} 
-                        disabled={loading} 
+                    <ThemedButton
+                        onPress={handleCancel}
+                        disabled={loading}
                         style={[styles.actionButton, { backgroundColor: Colors.warning }]}
                     >
                         <Text style={{ color: '#fff' }}>
