@@ -126,6 +126,17 @@ const PetDetails = () => {
 
                 <Spacer height={20} />
 
+                <ThemedText style={styles.title}>Gender:</ThemedText>
+                <ThemedText style={styles.text}>
+                    {pet.gender ? (
+                        pet.gender.charAt(0).toUpperCase() + pet.gender.slice(1)
+                    ) : (
+                        'Unknown'
+                    )}
+                </ThemedText>
+
+                <Spacer height={20} />
+
                 <ThemedText style={styles.title}>Date of Birth:</ThemedText>
                 <ThemedText style={styles.text}>{formatDateToDDMMYYYY(pet.birthDate)}</ThemedText>
 
@@ -183,6 +194,7 @@ const PetDetails = () => {
                 <Ionicons name="chevron-forward-outline" size={20} color={theme.text} />
             </ThemedButton>
 
+            {pet.passportId && (
             <ThemedButton onPress={() => router.push({
                 pathname: '/pets/passport',
                 params: { petId: pet.$id }
@@ -192,6 +204,7 @@ const PetDetails = () => {
                 </ThemedText>
                 <Ionicons name="chevron-forward-outline" size={20} color={theme.text} />
             </ThemedButton>
+            )}
 
             <ThemedView style={styles.buttonContainer}>
                 <ThemedButton onPress={handleDelete} style={styles.delete} >

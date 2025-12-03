@@ -73,6 +73,17 @@ const PatientDetails = () => {
 
                 <Spacer height={20} />
 
+                <ThemedText style={styles.title}>Gender:</ThemedText>
+                <ThemedText style={styles.text}>
+                    {pet.gender ? (
+                        pet.gender.charAt(0).toUpperCase() + pet.gender.slice(1)
+                    ) : (
+                        'Unknown'
+                    )}
+                </ThemedText>
+
+                <Spacer height={20} />
+
                 <ThemedText style={styles.title}>Date of Birth:</ThemedText>
                 <ThemedText style={styles.text}>{formatDateToDDMMYYYY(pet.birthDate)}</ThemedText>
 
@@ -129,7 +140,7 @@ const PatientDetails = () => {
                 </ThemedButton>
             ) : (
                 <ThemedButton onPress={() => router.push({
-                    pathname: '/patients/createPassport',
+                    pathname: '/patients/addPassport',
                     params: { petId: pet.$id }
                 })} style={[styles.createPassportButton, { backgroundColor: Colors.primary }]} >
                     <Ionicons name="add-circle-outline" size={24} color="#fff" />
@@ -139,7 +150,7 @@ const PatientDetails = () => {
                 </ThemedButton>
             )}
 
-            <ThemedButton onPress={() => router.push('/patients')} style={styles.button}>
+            <ThemedButton onPress={() => router.push('/patients')} style={[styles.button, { backgroundColor: Colors.warning }]} >
                 <Text style={{ color: '#fff' }}>
                     Back
                 </Text>

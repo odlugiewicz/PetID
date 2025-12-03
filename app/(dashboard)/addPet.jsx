@@ -33,9 +33,11 @@ const AddPet = () => {
     const [passportId, setPassportId] = useState("");
     const [birthDateString, setBirthDateString] = useState("")
     const [image, setImage] = useState(null);
+    const [gender, setGender] = useState("") // new state
 
     const [showSpeciesPicker, setShowSpeciesPicker] = useState(false)
     const [showBreedPicker, setShowBreedPicker] = useState(false)
+    const [showGenderPicker, setShowGenderPicker] = useState(false)
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
     const [isCheckedChip, setCheckedChip] = useState(false);
     const [isCheckedPassport, setCheckedPassport] = useState(false);
@@ -123,7 +125,18 @@ const AddPet = () => {
         setLoading(true)
 
         try {
-            await addPet({ name, birthDate, species: speciesName, breed: breedName, chipId, passportId }, image)
+            await addPet(
+                { 
+                    name, 
+                    birthDate, 
+                    species: speciesName, 
+                    breed: breedName, 
+                    chipId, 
+                    passportId,
+                    gender: gender || null // include gender
+                }, 
+                image
+            )
 
             setName("")
             setBirthDate(null)
@@ -134,6 +147,7 @@ const AddPet = () => {
             setChipId("")
             setPassportId("")
             setImage(null)
+            setGender("") // reset gender
 
             router.replace("/pets")
         } catch (error) {
@@ -155,6 +169,7 @@ const AddPet = () => {
             setChipId("")
             setPassportId("")
             setImage(null)
+            setGender("") // reset gender
             router.replace("/pets")
         } catch (error) {
             console.log("Canceling add pet form:", error)
@@ -356,6 +371,55 @@ const AddPet = () => {
 
                         {Platform.OS === 'ios' && (
                             <ThemedButton onPress={() => setShowBreedPicker(false)} style={{ alignItems: "center", width: '60%', alignSelf: 'center' }}>
+                                <ThemedText>Done</ThemedText>
+                            </ThemedButton>
+                        )}
+                    </ThemedView>
+                </Modal>
+
+                <Spacer />
+
+                <ThemedText style={styles.label}>Gender</ThemedText>
+                <ThemedButton
+                    style={[styles.picker, { backgroundColor: theme.uiBackground }]}
+                    onPress={() => setShowGenderPicker(true)}
+                >
+                    <View style={styles.row}>
+                        <ThemedText style={{ color: theme.text }}>
+                            {gender ? gender : "Select Gender"}
+                        </ThemedText>
+                        <Ionicons name="chevron-down" size={20} color={theme.text} />
+                    </View>
+                </ThemedButton>
+
+                {/* Gender picker modal */}
+                <Modal
+                    visible={showGenderPicker}
+                    transparent
+                    animationType="slide"
+                    onRequestClose={() => setShowGenderPicker(false)}
+                >
+                    <Pressable style={styles.modalOverlay} onPress={() => setShowGenderPicker(false)} />
+                    <ThemedView style={[styles.modalContent, { backgroundColor: theme.uiBackground }]}>
+                        <Picker
+                            selectedValue={gender}
+                            onValueChange={(value) => {
+                                setGender(value)
+                                if (Platform.OS === 'android') setShowGenderPicker(false)
+                            }}
+                            mode="dropdown"
+                            style={{ color: theme.text }}
+                            itemStyle={{ color: theme.text }}
+                            dropdownIconColor={theme.text}
+                        >
+                            <Picker.Item label="Select Gender" value="" color={theme.text} />
+                            <Picker.Item label="Male" value="male" color={theme.text} />
+                            <Picker.Item label="Female" value="female" color={theme.text} />
+                            <Picker.Item label="Unknown" value="unknown" color={theme.text} />
+                        </Picker>
+
+                        {Platform.OS === 'ios' && (
+                            <ThemedButton onPress={() => setShowGenderPicker(false)} style={{ alignItems: "center", width: '60%', alignSelf: 'center' }}>
                                 <ThemedText>Done</ThemedText>
                             </ThemedButton>
                         )}
