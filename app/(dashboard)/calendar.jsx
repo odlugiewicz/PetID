@@ -259,7 +259,7 @@ const CalendarUser = () => {
                         </ThemedText>
                         <ThemedButton
                             onPress={() => setModalVisible(true)}
-                            style={styles.addButton}
+                            style={{ borderRadius: 25, padding: 10 }}
                         >
                             <Ionicons name="add" size={20} color={theme.button} />
                         </ThemedButton>

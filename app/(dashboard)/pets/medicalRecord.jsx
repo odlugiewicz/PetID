@@ -88,7 +88,7 @@ const MedicalRecord = () => {
                     contentContainerStyle={{ paddingBottom: 20 }}
                 />
 
-                <ThemedButton onPress={() => router.push({ pathname: `/pets/[pet]`, params: { pet: pet.$id } })} style={styles.cancel}>
+                <ThemedButton onPress={() => router.replace({ pathname: `/pets/[id]`, params: { id: pet.$id } })} style={styles.cancel}>
                     <Text style={{ color: theme.button }}>
                         Back
                     </Text>
