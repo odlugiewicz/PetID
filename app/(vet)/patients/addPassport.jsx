@@ -7,6 +7,7 @@ import DateTimePickerModal from "react-native-modal-datetime-picker"
 import { ID, Permission, Role, Query } from 'react-native-appwrite'
 import { databases } from '../../../lib/appwrite'
 import { useUser } from '../../../hooks/useUser'
+import { usePassport } from '../../../contexts/PassportContext'
 
 import ThemedView from "../../../components/ThemedView"
 import ThemedText from "../../../components/ThemedText"
@@ -26,6 +27,7 @@ const AddPassport = () => {
     const router = useRouter()
     const { petId } = useLocalSearchParams()
     const { user } = useUser()
+    const { createPassport } = usePassport()
 
     const [passportNumber, setPassportNumber] = useState("")
     const [issueDate, setIssueDate] = useState(new Date())
@@ -133,66 +135,32 @@ const AddPassport = () => {
             return
         }
 
-        if (!petId || !user) {
-            Alert.alert("Error", "Missing pet or user information")
-            return
+        const passportData = {
+            passportNumber: passportNumber.trim(),
+            issueDate: issueDate.toISOString(),
+            expiryDate: expiryDate.toISOString(),
+            issuingCountry: issuingCountry.trim(),
+            issuingAuthority: issuingAuthority.trim() || null,
+            petsName: petsName.trim() || null,
+            petsNationality: petsNationality.trim() || null,
+            petsBirthDate: petsBirthDate ? petsBirthDate.toISOString() : null,
+            petColor: petColor.trim() || null,
+            distinguishingMarks: distinguishingMarks.trim() || null,
+            ownerName: ownerName.trim(),
+            ownerAddress: ownerAddress.trim() || null,
+            ownerPhone: ownerPhone.trim() || null,
+            rabiesVaccinationDate: rabiesVaccinationDate ? rabiesVaccinationDate.toISOString() : null,
+            rabiesVaccineName: rabiesVaccineName.trim() || null,
+            rabiesBatchNumber: rabiesBatchNumber.trim() || null,
+            otherPreventiveMeasures: otherPreventiveMeasures.trim() || null,
+            pet: petId
         }
 
-        setLoading(true)
-
-        try {
-            const passportDoc = await databases.createDocument(
-                DATABASE_ID,
-                PASSPORTS_TABLE_ID,
-                ID.unique(),
-                {
-                    passportNumber: passportNumber.trim(),
-                    issueDate: issueDate.toISOString(),
-                    expiryDate: expiryDate.toISOString(),
-                    issuingCountry: issuingCountry.trim(),
-                    issuingAuthority: issuingAuthority.trim() || null,
-
-                    petsName: petsName.trim() || null,
-                    petsNationality: petsNationality.trim() || null,
-                    petsBirthDate: petsBirthDate ? petsBirthDate.toISOString() : null,
-                    petColor: petColor.trim() || null,
-                    distinguishingMarks: distinguishingMarks.trim() || null,
-
-                    ownerName: ownerName.trim(),
-                    ownerAddress: ownerAddress.trim() || null,
-                    ownerPhone: ownerPhone.trim() || null,
-
-                    rabiesVaccinationDate: rabiesVaccinationDate ? rabiesVaccinationDate.toISOString() : null,
-                    rabiesVaccineName: rabiesVaccineName.trim() || null,
-                    rabiesBatchNumber: rabiesBatchNumber.trim() || null,
-
-                    otherPreventiveMeasures: otherPreventiveMeasures.trim() || null,
-
-                    pet: petId
-                },
-                [
-                    Permission.read(Role.user(user.$id)),
-                    Permission.update(Role.user(user.$id)),
-                    Permission.delete(Role.user(user.$id))
-                ]
-            )
-
-            await databases.updateDocument(
-                DATABASE_ID,
-                PETS_TABLE_ID,
-                petId,
-                {
-                    passportId: passportDoc.$id
-                }
-            )
-
+        const result = await createPassport(passportData)
+        
+        if (result) {
             Alert.alert("Success", "Passport created successfully")
             router.replace({ pathname: `/patients/[patient]`, params: { patient: petId } })
-        } catch (error) {
-            console.error("Failed to create passport:", error)
-            Alert.alert("Error", "Failed to create passport. Please try again.")
-        } finally {
-            setLoading(false)
         }
     }
 

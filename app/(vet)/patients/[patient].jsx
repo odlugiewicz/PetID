@@ -1,6 +1,6 @@
 import { StyleSheet, Text, useColorScheme, Alert } from 'react-native'
-import { useLocalSearchParams, useRouter } from 'expo-router'
-import { useEffect, useState } from 'react'
+import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router'
+import { useEffect, useState, useCallback } from 'react'
 import { useVet } from '../../../hooks/useVets'
 import { usePets } from '../../../hooks/usePets'
 import { Colors } from '../../../constants/Colors'
@@ -37,18 +37,21 @@ const PatientDetails = () => {
     const { patient: id } = useLocalSearchParams()
     const { fetchPetById} = usePets()
 
+    const loadPet = useCallback(async () => {
+        const petData = await fetchPetById(id)
+        setPet(petData)
+    }, [id, fetchPetById])
+
     useEffect(() => {
-
-        async function loadPet() {
-            const petData = await fetchPetById(id)
-            setPet(petData)
-        }
-
         loadPet()
-
         return () => setPet(null)
+    }, [loadPet])
 
-    }, [id])
+    useFocusEffect(
+        useCallback(() => {
+            loadPet()
+        }, [loadPet])
+    )
 
     if (!pet) {
         return (
@@ -128,7 +131,7 @@ const PatientDetails = () => {
                 <Ionicons name="chevron-forward-outline" size={20} color={theme.text} />
             </ThemedButton>
 
-            {pet.passportId ? (
+            {pet.passport ? (
                 <ThemedButton onPress={() => router.push({
                     pathname: '/patients/passportVet',
                     params: { petId: pet.$id }

@@ -6,6 +6,7 @@ import { UserProvider } from '../contexts/UserContext'
 import { PetsProvider } from '../contexts/PetsContext'
 import { VetProvider } from '../contexts/VetContext' // <-- 1. IMPORTUJ
 import { MedicalRecordProvider } from '../contexts/MedicalRecordContext'
+import { PassportProvider } from '../contexts/PassportContext'
 
 
 const RootLayout = () => {
@@ -18,17 +19,19 @@ const RootLayout = () => {
       <PetsProvider>
         <VetProvider>
           <MedicalRecordProvider>
-            <StatusBar value="auto" />
-            <Stack screenOptions={{
-              headerStyle: { backgroundColor: theme.navBackground },
-              headerTintColor: theme.title,
-            }}>
-              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-              <Stack.Screen name="(dashboard)" options={{ headerShown: false }} />
-              <Stack.Screen name="(vet)" options={{ headerShown: false }} />
-              <Stack.Screen name="index" options={{ title: 'Home' }} />
+            <PassportProvider>
+              <StatusBar value="auto" />
+              <Stack screenOptions={{
+                headerStyle: { backgroundColor: theme.navBackground },
+                headerTintColor: theme.title,
+              }}>
+                <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+                <Stack.Screen name="(dashboard)" options={{ headerShown: false }} />
+                <Stack.Screen name="(vet)" options={{ headerShown: false }} />
+                <Stack.Screen name="index" options={{ title: 'Home' }} />
 
-            </Stack>
+              </Stack>
+            </PassportProvider>
           </MedicalRecordProvider>
         </VetProvider>
       </PetsProvider>
