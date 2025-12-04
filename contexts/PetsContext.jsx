@@ -77,18 +77,15 @@ export function PetsProvider({ children }) {
     }
 
     const getPetImageUrl = (imageId) => {
-        console.log("Getting pet image URL for imageId:", imageId);
         if (!imageId) return null;
 
         try {
-            const url =  storage.getFileDownloadURL({
-                bucketId: BUCKET_ID,
-                fileId: imageId
-            });
+            const url =  storage.getFileViewURL(
+                BUCKET_ID,
+                imageId
+            );
 
-            
-            console.log("Generated Pet Image URL:", url);
-            return url;
+            return url.toString();
         } catch (error) {
             console.error("Failed to get pet image URL:", error);
             return null;

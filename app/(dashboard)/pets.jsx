@@ -37,13 +37,13 @@ const Pets = () => {
           width={'80%'}
           renderItem={({ item }) => {
             const imageUrl = item.imageId ? getPetImageUrl(item.imageId) : null;
-            console.log("Pet Image URL:", imageUrl);
             return (
               <Pressable onPress={() => router.push(`/pets/${item.$id}`)} style={{ flex: 1, margin: 1, minWidth: '50%' }}>
                 <ThemedCard style={styles.card}>
                   {imageUrl ? (
                     <Image
                       source={{ uri: imageUrl }}
+                      style={styles.petImage}
                     />
                   ) : (
                     <View style={[styles.petImagePlaceholder, { backgroundColor: Colors.light.uiBackground }]}>
@@ -112,9 +112,9 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   petImage: {
-    width: '100%',
-    height: 150,
-    borderRadius: 8,
+    width: 120,
+    height: 120,
+    borderRadius: 90,
     marginBottom: 10,
   },
   petImagePlaceholder: {

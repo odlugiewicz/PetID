@@ -1,4 +1,4 @@
-import { StyleSheet, Text, useColorScheme, Alert, Share } from 'react-native'
+import { StyleSheet, Text, useColorScheme, Alert, Image } from 'react-native'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useEffect, useState } from 'react'
 import { usePets } from '../../../hooks/usePets'
@@ -38,8 +38,9 @@ const PetDetails = () => {
     const [timeRemaining, setTimeRemaining] = useState(null)
 
     const { id } = useLocalSearchParams()
-    const { fetchPetById, deletePet, generatePetToken } = usePets()
+    const { fetchPetById, deletePet, generatePetToken, getPetImageUrl } = usePets()
     const router = useRouter()
+    const imageUrl = pet && pet.imageId ? getPetImageUrl(pet.imageId) : null;
 
     const handleDelete = async () => {
         await deletePet(id)
@@ -114,6 +115,11 @@ const PetDetails = () => {
     return (
         <ThemedScroll safe={true} style={styles.container}>
             <ThemedCard style={styles.card}>
+                <Image
+                    source={{ uri: imageUrl }}
+                    style={styles.petImage}
+                />
+
                 <ThemedText style={styles.header}>{pet.name}</ThemedText>
 
                 <ThemedText style={styles.title}>Species:</ThemedText>
@@ -178,7 +184,7 @@ const PetDetails = () => {
 
             {!token && (
                 <ThemedButton onPress={handleGenerateToken} disabled={generatingToken} style={styles.generateTokenButton} >
-                    <ThemedText style={{ fontSize: 20, color: '#fff'}}>
+                    <ThemedText style={{ fontSize: 20, color: '#fff' }}>
                         {generatingToken ? 'Generating...' : 'Generate Pets Code'}
                     </ThemedText>
                 </ThemedButton>
@@ -195,15 +201,15 @@ const PetDetails = () => {
             </ThemedButton>
 
             {pet.passportId && (
-            <ThemedButton onPress={() => router.push({
-                pathname: '/pets/passport',
-                params: { petId: pet.$id }
-            })} style={[styles.options, { backgroundColor: theme.uiBackground }]} >
-                <ThemedText style={{ fontSize: 20 }}>
-                    Passport
-                </ThemedText>
-                <Ionicons name="chevron-forward-outline" size={20} color={theme.text} />
-            </ThemedButton>
+                <ThemedButton onPress={() => router.push({
+                    pathname: '/pets/passport',
+                    params: { petId: pet.$id }
+                })} style={[styles.options, { backgroundColor: theme.uiBackground }]} >
+                    <ThemedText style={{ fontSize: 20 }}>
+                        Passport
+                    </ThemedText>
+                    <Ionicons name="chevron-forward-outline" size={20} color={theme.text} />
+                </ThemedButton>
             )}
 
             <ThemedView style={styles.buttonContainer}>
@@ -312,5 +318,12 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.primary,
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    petImage: {
+        width: 200,
+        height: 200,
+        borderRadius: 100,
+        marginBottom: 10,
+        alignSelf: 'center',
     },
 })
