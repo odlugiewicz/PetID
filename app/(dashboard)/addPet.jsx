@@ -33,7 +33,7 @@ const AddPet = () => {
     const [passportId, setPassportId] = useState("");
     const [birthDateString, setBirthDateString] = useState("")
     const [image, setImage] = useState(null);
-    const [gender, setGender] = useState("") // new state
+    const [gender, setGender] = useState("")
 
     const [showSpeciesPicker, setShowSpeciesPicker] = useState(false)
     const [showBreedPicker, setShowBreedPicker] = useState(false)
@@ -133,7 +133,7 @@ const AddPet = () => {
                     breed: breedName, 
                     chipId, 
                     passportId,
-                    gender: gender || null // include gender
+                    gender: gender || null
                 }, 
                 image
             )
@@ -147,7 +147,7 @@ const AddPet = () => {
             setChipId("")
             setPassportId("")
             setImage(null)
-            setGender("") // reset gender
+            setGender("")
 
             router.replace("/pets")
         } catch (error) {

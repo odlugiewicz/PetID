@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TouchableWithoutFeedback, Keyboard, useColorScheme, Alert } from 'react-native'
+import { StyleSheet, Text, View, TouchableWithoutFeedback, Keyboard, useColorScheme, Alert, Image } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import { useRouter, useLocalSearchParams } from 'expo-router'
 import { Colors } from '../../../constants/Colors'
@@ -8,6 +8,7 @@ import { ID, Permission, Role, Query } from 'react-native-appwrite'
 import { databases } from '../../../lib/appwrite'
 import { useUser } from '../../../hooks/useUser'
 import { usePassport } from '../../../contexts/PassportContext'
+import * as ImagePicker from 'expo-image-picker'
 
 import ThemedView from "../../../components/ThemedView"
 import ThemedText from "../../../components/ThemedText"
@@ -48,10 +49,13 @@ const AddPassport = () => {
     const [issuingCountry, setIssuingCountry] = useState("")
     const [issuingAuthority, setIssuingAuthority] = useState("")
 
+    const [image, setImage] = useState(null);
     const [petsName, setPetsName] = useState("")
     const [petsNationality, setPetsNationality] = useState("")
     const [petsBirthDate, setPetsBirthDate] = useState(null)
     const [petsBirthDateString, setPetsBirthDateString] = useState("")
+    const [petsSpecies, setPetsSpecies] = useState("")
+    const [petsBreed, setPetsBreed] = useState("")
     const [petColor, setPetColor] = useState("")
     const [distinguishingMarks, setDistinguishingMarks] = useState("")
 
@@ -128,9 +132,29 @@ const AddPassport = () => {
         hideRabiesVacDatePicker()
     }
 
+    const pickImage = async () => {
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== 'granted') {
+            alert('Sorry, we need camera roll permissions to make this work!');
+            return;
+        }
+
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 1,
+        });
+
+        if (!result.canceled) {
+            setImage(result.assets[0]);
+        }
+        setLoading(false)
+    };
+
 
     const handleSubmit = async () => {
-        if (!passportNumber.trim() || !issuingCountry.trim() || !ownerName.trim()) {
+        if (!passportNumber.trim() || !issuingCountry.trim() || !ownerName.trim() || !rabiesVaccineName.trim() || !rabiesBatchNumber.trim() || !rabiesVaccinationDate || !petsName.trim() || !petsBirthDate || !petsNationality.trim() || !petColor.trim() || !ownerPhone.trim() || !ownerAddress.trim() || !issuingAuthority || !petsBreed.trim() || !petsSpecies.trim() || !image) {
             Alert.alert("Error", "Please fill in all required fields")
             return
         }
@@ -140,24 +164,26 @@ const AddPassport = () => {
             issueDate: issueDate.toISOString(),
             expiryDate: expiryDate.toISOString(),
             issuingCountry: issuingCountry.trim(),
-            issuingAuthority: issuingAuthority.trim() || null,
-            petsName: petsName.trim() || null,
-            petsNationality: petsNationality.trim() || null,
-            petsBirthDate: petsBirthDate ? petsBirthDate.toISOString() : null,
-            petColor: petColor.trim() || null,
+            issuingAuthority: issuingAuthority.trim(),
+            petsName: petsName.trim(),
+            petsNationality: petsNationality.trim(),
+            petsBirthDate: petsBirthDate.toISOString(),
+            petsSpecies: petsSpecies.trim(),
+            petsBreed: petsBreed.trim(),
+            petColor: petColor.trim(),
             distinguishingMarks: distinguishingMarks.trim() || null,
             ownerName: ownerName.trim(),
-            ownerAddress: ownerAddress.trim() || null,
-            ownerPhone: ownerPhone.trim() || null,
-            rabiesVaccinationDate: rabiesVaccinationDate ? rabiesVaccinationDate.toISOString() : null,
-            rabiesVaccineName: rabiesVaccineName.trim() || null,
-            rabiesBatchNumber: rabiesBatchNumber.trim() || null,
+            ownerAddress: ownerAddress.trim(),
+            ownerPhone: ownerPhone.trim(),
+            rabiesVaccinationDate: rabiesVaccinationDate.toISOString(),
+            rabiesVaccineName: rabiesVaccineName.trim(),
+            rabiesBatchNumber: rabiesBatchNumber.trim(),
             otherPreventiveMeasures: otherPreventiveMeasures.trim() || null,
-            pet: petId
+            pet: petId,
         }
 
-        const result = await createPassport(passportData)
-        
+        const result = await createPassport(passportData, image)
+
         if (result) {
             Alert.alert("Success", "Passport created successfully")
             router.replace({ pathname: `/patients/[patient]`, params: { patient: petId } })
@@ -215,6 +241,14 @@ const AddPassport = () => {
                     setPetColor(petDoc.color)
                 }
 
+                if (petDoc.species) {
+                    setPetsSpecies(petDoc.species)
+                }
+
+                if (petDoc.breed) {
+                    setPetsBreed(petDoc.breed)
+                }
+
                 if (petDoc.ownerId) {
                     const ownerId = typeof petDoc.ownerId === 'string' ? petDoc.ownerId : petDoc.ownerId.$id
 
@@ -229,7 +263,7 @@ const AddPassport = () => {
 
                         if (ownerDocs.documents.length > 0) {
                             const ownerDoc = ownerDocs.documents[0]
-                            
+
                             if (ownerDoc.firstName && ownerDoc.lastName) {
                                 setOwnerName(`${ownerDoc.firstName} ${ownerDoc.lastName}`)
                             }
@@ -368,6 +402,39 @@ const AddPassport = () => {
                 </ThemedText>
                 <Spacer height={10} />
 
+                <View style={styles.imageInputContainer}>
+                    {image ? (
+                        <Image
+                            source={{ uri: image.uri }}
+                            style={styles.imagePreview}
+                        />
+                    ) : (
+                        <View style={[styles.imagePlaceholder, { backgroundColor: theme.uiBackground, borderColor: theme.text }]}>
+                            <Ionicons name="camera-outline" size={30} color={theme.text} />
+                            <ThemedText style={{ marginTop: 10 }}>Select Photo</ThemedText>
+                        </View>
+                    )}
+
+                    <ThemedButton
+                        onPress={pickImage}
+                        style={{ marginTop: 10, width: '80%', alignSelf: 'center', alignItems: 'center' }}
+                    >
+                        <Text style={{ color: '#F5FCFA' }}>
+                            {image ? "Change Photo" : "Select Photo"}
+                        </Text>
+                    </ThemedButton>
+
+                    {image && (
+                        <ThemedButton onPress={() => setImage(null)} style={[styles.removeImageButton, { backgroundColor: Colors.warning, width: '80%', alignSelf: 'center' }]} >
+                            <Text style={{ color: '#fff', textAlign: 'center' }}>
+                                Remove Photo
+                            </Text>
+                        </ThemedButton>
+                    )}
+                </View>
+
+                <Spacer />
+
                 <ThemedText style={styles.label}>Pet's Name</ThemedText>
                 <ThemedTextInput
                     style={styles.input}
@@ -411,6 +478,24 @@ const AddPassport = () => {
 
                 <Spacer />
 
+                <ThemedText style={styles.label}>Species</ThemedText>
+                <ThemedTextInput
+                    style={styles.input}
+                    placeholder="Pet's species"
+                    value={petsSpecies}
+                    onChangeText={setPetsSpecies}
+                />
+                <Spacer />
+
+                <ThemedText style={styles.label}>Breed</ThemedText>
+                <ThemedTextInput
+                    style={styles.input}
+                    placeholder="Pet's breed"
+                    value={petsBreed}
+                    onChangeText={setPetsBreed}
+                />
+                <Spacer />
+
                 <ThemedText style={styles.label}>Color</ThemedText>
                 <ThemedTextInput
                     style={styles.input}
@@ -420,7 +505,10 @@ const AddPassport = () => {
                 />
                 <Spacer />
 
-                <ThemedText style={styles.label}>Distinguishing Marks</ThemedText>
+                <View style={{ flexDirection: 'row' }}>
+                    <ThemedText style={styles.label}>Distinguishing Marks</ThemedText>
+                    <ThemedText style={{ marginRight: 140, color: Colors.primary }}> (optional) </ThemedText>
+                </View>
                 <ThemedTextInput
                     style={styles.multiline}
                     placeholder="Any prominent features or distinguishing marks"
@@ -518,13 +606,17 @@ const AddPassport = () => {
                 />
                 <Spacer height={20} />
 
-                {/* Other Preventive Measures */}
                 <ThemedText style={[styles.sectionHeader, { color: Colors.primary }]}>
                     Other Preventive Health Measures
                 </ThemedText>
+
                 <Spacer height={10} />
 
-                <ThemedText style={styles.label}>Preventive Measures</ThemedText>
+                <View style={{ flexDirection: 'row' }}>
+                    <ThemedText style={styles.label}>Preventive Measures</ThemedText>
+                    <ThemedText style={{ marginRight: 140, color: Colors.primary }}> (optional) </ThemedText>
+                </View>
+
                 <ThemedTextInput
                     style={styles.multiline}
                     placeholder="Details regarding preventive measures for diseases or infections other than rabies"
@@ -561,7 +653,7 @@ const AddPassport = () => {
 
                 <Spacer />
             </ThemedScroll>
-        </TouchableWithoutFeedback>
+        </TouchableWithoutFeedback >
     )
 }
 
@@ -620,5 +712,29 @@ const styles = StyleSheet.create({
     actionButton: {
         width: '40%',
         alignItems: 'center',
+    },
+    imageInputContainer: {
+        alignItems: 'center',
+        marginHorizontal: 40,
+        padding: 20,
+    },
+    imagePreview: {
+        width: 150,
+        height: 150,
+        borderRadius: 75,
+        marginBottom: 10,
+    },
+    imagePlaceholder: {
+        width: 150,
+        height: 150,
+        borderRadius: 75,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderStyle: 'dashed',
+        marginBottom: 10,
+    },
+    removeImageButton: {
+        marginTop: 10,
     },
 })

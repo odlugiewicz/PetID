@@ -145,6 +145,16 @@ const PassportVet = () => {
                         <ThemedText style={styles.label}>Birth Date:</ThemedText>
                         <ThemedText style={styles.value}>{formatDate(passport.petsBirthDate)}</ThemedText>
                     </View>
+
+                    <View style={styles.infoRow}>
+                        <ThemedText style={styles.label}>Species:</ThemedText>
+                        <ThemedText style={styles.value}>{passport.petsSpecies || 'N/A'}</ThemedText>
+                    </View>
+
+                    <View style={styles.infoRow}>
+                        <ThemedText style={styles.label}>Breed:</ThemedText>
+                        <ThemedText style={styles.value}>{passport.petsBreed || 'N/A'}</ThemedText>
+                    </View>
                     
                     <View style={styles.infoRow}>
                         <ThemedText style={styles.label}>Color:</ThemedText>
