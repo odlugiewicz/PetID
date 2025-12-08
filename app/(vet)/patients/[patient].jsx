@@ -1,4 +1,4 @@
-import { StyleSheet, Text, useColorScheme, Alert } from 'react-native'
+import { StyleSheet, Text, useColorScheme, Alert, Image } from 'react-native'
 import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router'
 import { useEffect, useState, useCallback } from 'react'
 import { useVet } from '../../../hooks/useVets'
@@ -35,7 +35,8 @@ const PatientDetails = () => {
     const [pet, setPet] = useState(null)
 
     const { patient: id } = useLocalSearchParams()
-    const { fetchPetById} = usePets()
+    const { fetchPetById, getPetImageUrl } = usePets()
+     const imageUrl = pet && pet.imageId ? getPetImageUrl(pet.imageId) : null;
 
     const loadPet = useCallback(async () => {
         const petData = await fetchPetById(id)
@@ -64,6 +65,10 @@ const PatientDetails = () => {
     return (
         <ThemedScroll safe={true} style={styles.container}>
             <ThemedCard style={styles.card}>
+                <Image
+                    source={{ uri: imageUrl }}
+                    style={styles.petImage}
+                />
                 <ThemedText style={styles.header}>{pet.name}</ThemedText>
 
                 <ThemedText style={styles.title}>Species:</ThemedText>
@@ -213,5 +218,12 @@ const styles = StyleSheet.create({
         alignSelf: "center",
         alignItems: 'center',
         marginBottom: 20,
-    }
+    },
+    petImage: {
+        width: 200,
+        height: 200,
+        borderRadius: 100,
+        marginBottom: 10,
+        alignSelf: 'center',
+    },
 })
