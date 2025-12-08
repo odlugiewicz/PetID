@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableWithoutFeedback, ScrollView, View, useColorScheme, Text } from 'react-native'
+import { StyleSheet, TouchableWithoutFeedback, ScrollView, View, useColorScheme, Text, Image } from 'react-native'
 import { useRouter, useLocalSearchParams } from 'expo-router'
 import { usePets } from '../../../hooks/usePets'
 import { usePassport } from '../../../contexts/PassportContext'
@@ -23,7 +23,9 @@ const PassportVet = () => {
     const [loading, setLoading] = useState(true)
     const { petId: idParam } = useLocalSearchParams()
     const { fetchPetById } = usePets()
-    const { fetchPassportByPetId } = usePassport()
+    const { fetchPassportByPetId, getPassportImageUrl } = usePassport()
+
+    const imageUrl = passport && passport.imageId ? getPassportImageUrl(passport.imageId) : null;
 
     useEffect(() => {
         async function loadData() {
@@ -32,7 +34,7 @@ const PassportVet = () => {
             if (idParam) {
                 const petData = await fetchPetById(idParam)
                 setPet(petData)
-                
+
                 if (petData) {
                     const passportData = await fetchPassportByPetId(idParam)
                     setPassport(passportData)
@@ -79,8 +81,8 @@ const PassportVet = () => {
                     </ThemedText>
                 </ThemedCard>
 
-                <ThemedButton 
-                    onPress={() => router.push({ pathname: `/patients/[patient]`, params: { patient: pet.$id } })} 
+                <ThemedButton
+                    onPress={() => router.push({ pathname: `/patients/[patient]`, params: { patient: pet.$id } })}
                     style={styles.cancel}
                 >
                     <Text style={{ color: theme.button }}>Back</Text>
@@ -100,27 +102,27 @@ const PassportVet = () => {
                 <ThemedCard style={styles.section}>
                     <ThemedText style={styles.sectionTitle}>Passport Information</ThemedText>
                     <Spacer height={10} />
-                    
+
                     <View style={styles.infoRow}>
                         <ThemedText style={styles.label}>Passport Number:</ThemedText>
                         <ThemedText style={styles.value}>{passport.passportNumber || 'N/A'}</ThemedText>
                     </View>
-                    
+
                     <View style={styles.infoRow}>
                         <ThemedText style={styles.label}>Issue Date:</ThemedText>
                         <ThemedText style={styles.value}>{formatDate(passport.issueDate)}</ThemedText>
                     </View>
-                    
+
                     <View style={styles.infoRow}>
                         <ThemedText style={styles.label}>Expiry Date:</ThemedText>
                         <ThemedText style={styles.value}>{formatDate(passport.expiryDate)}</ThemedText>
                     </View>
-                    
+
                     <View style={styles.infoRow}>
                         <ThemedText style={styles.label}>Issuing Country:</ThemedText>
                         <ThemedText style={styles.value}>{passport.issuingCountry || 'N/A'}</ThemedText>
                     </View>
-                    
+
                     <View style={styles.infoRow}>
                         <ThemedText style={styles.label}>Issuing Authority:</ThemedText>
                         <ThemedText style={styles.value}>{passport.issuingAuthority || 'N/A'}</ThemedText>
@@ -130,17 +132,22 @@ const PassportVet = () => {
                 <ThemedCard style={styles.section}>
                     <ThemedText style={styles.sectionTitle}>Pet Details</ThemedText>
                     <Spacer height={10} />
-                    
+
+                    <Image
+                        source={{ uri: imageUrl }}
+                        style={styles.petImage}
+                    />
+
                     <View style={styles.infoRow}>
                         <ThemedText style={styles.label}>Pet's Name:</ThemedText>
                         <ThemedText style={styles.value}>{passport.petsName || 'N/A'}</ThemedText>
                     </View>
-                    
+
                     <View style={styles.infoRow}>
                         <ThemedText style={styles.label}>Nationality:</ThemedText>
                         <ThemedText style={styles.value}>{passport.petsNationality || 'N/A'}</ThemedText>
                     </View>
-                    
+
                     <View style={styles.infoRow}>
                         <ThemedText style={styles.label}>Birth Date:</ThemedText>
                         <ThemedText style={styles.value}>{formatDate(passport.petsBirthDate)}</ThemedText>
@@ -155,12 +162,12 @@ const PassportVet = () => {
                         <ThemedText style={styles.label}>Breed:</ThemedText>
                         <ThemedText style={styles.value}>{passport.petsBreed || 'N/A'}</ThemedText>
                     </View>
-                    
+
                     <View style={styles.infoRow}>
                         <ThemedText style={styles.label}>Color:</ThemedText>
                         <ThemedText style={styles.value}>{passport.petColor || 'N/A'}</ThemedText>
                     </View>
-                    
+
                     {passport.distinguishingMarks && (
                         <View style={styles.infoColumn}>
                             <ThemedText style={styles.label}>Distinguishing Marks:</ThemedText>
@@ -172,19 +179,19 @@ const PassportVet = () => {
                 <ThemedCard style={styles.section}>
                     <ThemedText style={styles.sectionTitle}>Owner Information</ThemedText>
                     <Spacer height={10} />
-                    
+
                     <View style={styles.infoRow}>
                         <ThemedText style={styles.label}>Owner Name:</ThemedText>
                         <ThemedText style={styles.value}>{passport.ownerName || 'N/A'}</ThemedText>
                     </View>
-                    
+
                     {passport.ownerAddress && (
                         <View style={styles.infoRow}>
                             <ThemedText style={styles.label}>Address:</ThemedText>
                             <ThemedText style={styles.valueMultiline}>{passport.ownerAddress}</ThemedText>
                         </View>
                     )}
-                    
+
                     <View style={styles.infoRow}>
                         <ThemedText style={styles.label}>Phone:</ThemedText>
                         <ThemedText style={styles.value}>{passport.ownerPhone || 'N/A'}</ThemedText>
@@ -194,17 +201,17 @@ const PassportVet = () => {
                 <ThemedCard style={styles.section}>
                     <ThemedText style={styles.sectionTitle}>Rabies Vaccination</ThemedText>
                     <Spacer height={10} />
-                    
+
                     <View style={styles.infoRow}>
                         <ThemedText style={styles.label}>Vaccination Date:</ThemedText>
                         <ThemedText style={styles.value}>{formatDate(passport.rabiesVaccinationDate)}</ThemedText>
                     </View>
-                    
+
                     <View style={styles.infoRow}>
                         <ThemedText style={styles.label}>Vaccine Name:</ThemedText>
                         <ThemedText style={styles.value}>{passport.rabiesVaccineName || 'N/A'}</ThemedText>
                     </View>
-                    
+
                     <View style={styles.infoRow}>
                         <ThemedText style={styles.label}>Batch Number:</ThemedText>
                         <ThemedText style={styles.value}>{passport.rabiesBatchNumber || 'N/A'}</ThemedText>
@@ -219,8 +226,8 @@ const PassportVet = () => {
                     </ThemedCard>
                 )}
 
-                <ThemedButton 
-                    onPress={() => router.push({ pathname: `/patients/[patient]`, params: { patient: pet.$id } })} 
+                <ThemedButton
+                    onPress={() => router.push({ pathname: `/patients/[patient]`, params: { patient: pet.$id } })}
                     style={styles.backButton}
                 >
                     <Text style={{ color: '#fff' }}>Back</Text>
@@ -306,5 +313,12 @@ const styles = StyleSheet.create({
         width: '50%',
         alignSelf: "center",
         alignItems: 'center',
+    },
+    petImage: {
+        width: 160,
+        height: 180,
+        borderRadius: 30,
+        marginBottom: 10,
+        alignSelf: 'center',
     },
 })

@@ -84,7 +84,7 @@ export const PassportProvider = ({ children }) => {
         }
     }
 
-    const getPetImageUrl = (imageId) => {
+    const getPassportImageUrl = (imageId) => {
             if (!imageId) return null;
     
             try {
@@ -175,7 +175,8 @@ export const PassportProvider = ({ children }) => {
                 fetchPassportByPetId,
                 createPassport,
                 updatePassport,
-                deletePassport
+                deletePassport,
+                getPassportImageUrl
             }}
         >
             {children}
