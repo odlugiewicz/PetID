@@ -42,10 +42,11 @@ module.exports = async function ({ req, res, log, error }) {
     const responseData = String(response.data);
 
     log("Otrzymana odpowiedź z WetSystems: " + responseData);
-    const isVerified = 
-        responseData.includes("Czynny") || 
-        responseData.includes("Aktywny") ||
-        (responseData.includes(lastName) && responseData.includes(pwz));
+    const isVerified = true;
+
+    if(responseData.includes("W bazie nie istnieje lekarz o podanych kryteriach wyszukiwania.")) {
+      isVerified = false;
+    }
 
     if (isVerified) {
       return res.json({ isValid: true });
