@@ -41,6 +41,7 @@ module.exports = async function ({ req, res, log, error }) {
 
     const responseData = String(response.data);
 
+    log("Otrzymana odpowiedź z WetSystems: " + responseData);
     const isVerified = 
         responseData.includes("Czynny") || 
         responseData.includes("Aktywny") ||
