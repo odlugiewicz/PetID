@@ -4,7 +4,7 @@ import { Colors } from '../constants/Colors'
 import { StatusBar } from 'expo-status-bar'
 import { UserProvider } from '../contexts/UserContext'
 import { PetsProvider } from '../contexts/PetsContext'
-import { VetProvider } from '../contexts/VetContext' // <-- 1. IMPORTUJ
+import { VetProvider } from '../contexts/VetContext'
 import { MedicalRecordProvider } from '../contexts/MedicalRecordContext'
 import { PassportProvider } from '../contexts/PassportContext'
 

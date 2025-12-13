@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect } from "react";
-import { account, databases, users } from "../lib/appwrite";
+import { account, databases, users, functions } from "../lib/appwrite";
 import { ID, Query, Permission, Role } from "react-native-appwrite";
 import { is } from "date-fns/locale";
 
@@ -52,6 +52,32 @@ export function UserProvider({ children }) {
 
   async function register(email, password, name, phone, lastName, address, licenseNumber, isVet) {
     try {
+      if (isVet) {
+        console.log("Weryfikacja weterynarza...");
+
+        const FUNCTION_ID = "ID_FUNKCJI";
+
+        const execution = await functions.createExecution(
+          FUNCTION_ID,
+          JSON.stringify({
+            firstName: name,
+            lastName: lastName,
+            licenseNumber: licenseNumber
+          })
+        );
+
+        if (execution.status !== 'completed') {
+          throw new Error("Błąd połączenia z serwerem weryfikacyjnym.");
+        }
+
+        const result = JSON.parse(execution.responseBody);
+        console.log("Wynik weryfikacji:", result);
+
+        if (!result.isValid) {
+          throw new Error(result.message || "Weryfikacja nieudana. Sprawdź dane.");
+        }
+      }
+
       await account.create(ID.unique(), email, password, name, phone);
       await login(email, password);
 
@@ -62,7 +88,7 @@ export function UserProvider({ children }) {
           DATABASE_ID,
           VETS_TABLE_ID,
           ID.unique(),
-          { firstName: name, lastName: lastName, phoneNumber: phone, address: address, email: email, licenseNumber: licenseNumber, userId: userId },
+          { firstName: name, lastName: lastName, phoneNumber: phone, address: address, email: email, licenseNumber: licenseNumber, userId: userId, isVerified: true },
           [
             Permission.read(Role.user(userId)),
             Permission.update(Role.user(userId)),
@@ -118,7 +144,7 @@ export function UserProvider({ children }) {
   }, []);
 
   useEffect(() => {
-    if (user && user.role === 'user') { 
+    if (user && user.role === 'user') {
       fetchUserData();
     } else {
       setUserData(null);

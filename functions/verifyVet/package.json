@@ -1,0 +1,10 @@
+{
+  "name": "verify-vet",
+  "version": "1.0.0",
+  "main": "src/main.js",
+  "dependencies": {
+    "node-appwrite": "^11.0.0",
+    "axios": "^1.6.0",
+    "qs": "^6.11.0"
+  }
+}
