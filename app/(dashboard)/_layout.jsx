@@ -96,6 +96,20 @@ const DashboardLayout = () => {
         }}
         />
 
+        <Tabs.Screen
+        name="pets/vaccination"
+        options={{
+          href: null,
+        }}
+        />
+
+        <Tabs.Screen
+        name="pets/vaccinationDetails"
+        options={{
+          href: null,
+        }}
+        />
+
       </Tabs>
     </UserOnly>
   )

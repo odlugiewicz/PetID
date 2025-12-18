@@ -7,6 +7,7 @@ import { PetsProvider } from '../contexts/PetsContext'
 import { VetProvider } from '../contexts/VetContext'
 import { MedicalRecordProvider } from '../contexts/MedicalRecordContext'
 import { PassportProvider } from '../contexts/PassportContext'
+import { VaccinationProvider } from '../contexts/VaccinationContext'
 
 
 const RootLayout = () => {
@@ -20,17 +21,19 @@ const RootLayout = () => {
         <VetProvider>
           <MedicalRecordProvider>
             <PassportProvider>
-              <StatusBar value="auto" />
-              <Stack screenOptions={{
-                headerStyle: { backgroundColor: theme.navBackground },
-                headerTintColor: theme.title,
-              }}>
-                <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-                <Stack.Screen name="(dashboard)" options={{ headerShown: false }} />
-                <Stack.Screen name="(vet)" options={{ headerShown: false }} />
-                <Stack.Screen name="index" options={{ title: 'Home' }} />
+              <VaccinationProvider>
+                <StatusBar value="auto" />
+                <Stack screenOptions={{
+                  headerStyle: { backgroundColor: theme.navBackground },
+                  headerTintColor: theme.title,
+                }}>
+                  <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+                  <Stack.Screen name="(dashboard)" options={{ headerShown: false }} />
+                  <Stack.Screen name="(vet)" options={{ headerShown: false }} />
+                  <Stack.Screen name="index" options={{ title: 'Home' }} />
 
-              </Stack>
+                </Stack>
+              </VaccinationProvider>
             </PassportProvider>
           </MedicalRecordProvider>
         </VetProvider>
