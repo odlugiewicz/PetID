@@ -185,6 +185,18 @@ const AddPassport = () => {
         const result = await createPassport(passportData, image)
 
         if (result) {
+            try {
+                
+                await databases.updateDocument(
+                    DATABASE_ID,
+                    PETS_TABLE_ID,
+                    petId,
+                    { passportId: passportNumber.trim() }
+                )
+
+            } catch (error) {
+                console.error("Failed to update pet with passport number:", error)
+            }
             Alert.alert("Success", "Passport created successfully")
             router.replace({ pathname: `/patients/[patient]`, params: { patient: petId } })
         }

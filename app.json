@@ -1,6 +1,6 @@
 {
   "expo": {
-    "schema": "petid",
+    "scheme": "petid",
     "name": "PetID",
     "slug": "PetID",
     "version": "1.0.0",
