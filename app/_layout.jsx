@@ -8,6 +8,7 @@ import { VetProvider } from '../contexts/VetContext'
 import { MedicalRecordProvider } from '../contexts/MedicalRecordContext'
 import { PassportProvider } from '../contexts/PassportContext'
 import { VaccinationProvider } from '../contexts/VaccinationContext'
+import { MedicineProvider } from '../contexts/MedicineContext'
 
 
 const RootLayout = () => {
@@ -22,6 +23,7 @@ const RootLayout = () => {
           <MedicalRecordProvider>
             <PassportProvider>
               <VaccinationProvider>
+                <MedicineProvider>
                 <StatusBar value="auto" />
                 <Stack screenOptions={{
                   headerStyle: { backgroundColor: theme.navBackground },
@@ -33,6 +35,7 @@ const RootLayout = () => {
                   <Stack.Screen name="index" options={{ title: 'Home' }} />
 
                 </Stack>
+                </MedicineProvider>
               </VaccinationProvider>
             </PassportProvider>
           </MedicalRecordProvider>
