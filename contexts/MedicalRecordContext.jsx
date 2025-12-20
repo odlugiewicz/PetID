@@ -13,7 +13,7 @@ export function MedicalRecordProvider({ children }) {
     const [pet, setPet] = useState(null);
     const { user } = useUser();
 
-    async function addMedicalRecord({ title, visitDate, diagnosis, treatment, notes, nextAppointment, vetId, petId }) {
+    async function addMedicalRecord({ title, visitDate, diagnosis, treatment, notes, nextAppointment, nextAppointmentTitle, vetId, petId }) {
         if (!user || user.role !== 'vet' ) return;
         try {
             const newRecord = await databases.createDocument(
@@ -27,6 +27,7 @@ export function MedicalRecordProvider({ children }) {
                     treatment: treatment,
                     notes: notes || null,
                     nextAppointment: nextAppointment || null,
+                    nextAppointmentTitle: nextAppointmentTitle || null,
                     vetId,
                     pet: petId
                 },

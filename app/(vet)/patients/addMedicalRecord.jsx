@@ -1,11 +1,15 @@
 import { StyleSheet, Text, TouchableWithoutFeedback, Keyboard, Pressable, View, useColorScheme } from 'react-native'
 import { useRouter, useLocalSearchParams } from 'expo-router'
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { ID, Permission, Role } from 'react-native-appwrite'
 import { useMedicalRecord } from '../../../hooks/useMedicalRecord'
 import { useVet } from '../../../hooks/useVets'
+import { usePets } from '../../../hooks/usePets'
+import { useUser } from '../../../hooks/useUser'
 import { Colors } from '../../../constants/Colors'
 import { Ionicons } from '@expo/vector-icons'
 import DateTimePickerModal from "react-native-modal-datetime-picker"
+import { databases } from '../../../lib/appwrite'
 
 import ThemedView from "../../../components/ThemedView"
 import ThemedText from "../../../components/ThemedText"
@@ -22,11 +26,13 @@ const AddMedicalRecord = () => {
     const theme = Colors[colorScheme] ?? Colors.light
     const { addMedicalRecord } = useMedicalRecord()
     const { vetData, fetchVetData } = useVet()
+    const { fetchPetById } = usePets()
+    const { user } = useUser()
     const { patient: petId } = useLocalSearchParams()
 
 
     const [title, setTitle] = useState("")
-    
+
     const [visitDate, setVisitDate] = useState(() => new Date())
     const [visitDateString, setVisitDateString] = useState(() => {
         const d = new Date()
@@ -35,12 +41,63 @@ const AddMedicalRecord = () => {
     const [diagnosis, setDiagnosis] = useState("")
     const [treatment, setTreatment] = useState("")
     const [notes, setNotes] = useState("")
-    const [nextAppointment, setNextAppointment] = useState(null)
-    const [nextAppointmentString, setNextAppointmentString] = useState("")
+    const [nextAppointmentTitle, setNextAppointmentTitle] = useState("")
+    const [hasNextAppointment, setHasNextAppointment] = useState(false)
+    const [nextAppointmentDate, setNextAppointmentDate] = useState(null)
+    const [nextAppointmentDateString, setNextAppointmentDateString] = useState("")
+    const [nextAppointmentTime, setNextAppointmentTime] = useState(null)
+    const [nextAppointmentTimeString, setNextAppointmentTimeString] = useState("")
+    const [petOwnerId, setPetOwnerId] = useState(null)
+    const [petName, setPetName] = useState("")
 
     const [isVisitDatePickerVisible, setVisitDatePickerVisibility] = useState(false)
     const [isNextAppointmentPickerVisible, setNextAppointmentPickerVisibility] = useState(false)
+    const [isNextAppointmentTimePickerVisible, setNextAppointmentTimePickerVisibility] = useState(false)
     const [loading, setLoading] = useState(false)
+
+    useEffect(() => {
+        const loadPet = async () => {
+            if (!petId) return
+            try {
+                const pet = await fetchPetById(petId)
+                if (pet) {
+                    setPetOwnerId(pet.userId)
+                    setPetName(pet.name)
+                }
+            } catch (error) {
+                console.log("Failed to load pet for calendar event:", error)
+            }
+        }
+
+        loadPet()
+    }, [petId, fetchPetById])
+
+    const createCalendarEvent = async ({ targetUserId, title, description, whenISO, timeLabel }) => {
+        if (!targetUserId || !whenISO) return null
+
+        try {
+            return await databases.createDocument(
+                "69051e15000f0c86fdb1",
+                "events",
+                ID.unique(),
+                {
+                    userId: targetUserId,
+                    title,
+                    description: description || null,
+                    eventDate: whenISO,
+                    eventTime: timeLabel || null,
+                },
+                [
+                    Permission.read(Role.any()),
+                    Permission.update(Role.any()),
+                    Permission.delete(Role.any()),
+                ]
+            )
+        } catch (error) {
+            console.log("Failed to add calendar event:", error)
+            return null
+        }
+    }
 
     const showVisitDatePicker = () => {
         setVisitDatePickerVisibility(true)
@@ -75,9 +132,27 @@ const AddMedicalRecord = () => {
             month: '2-digit',
             year: 'numeric'
         })
-        setNextAppointmentString(formattedDate)
-        setNextAppointment(date)
+        setNextAppointmentDateString(formattedDate)
+        setNextAppointmentDate(date)
         hideNextAppointmentPicker()
+    }
+
+    const showNextAppointmentTimePicker = () => {
+        setNextAppointmentTimePickerVisibility(true)
+    }
+
+    const hideNextAppointmentTimePicker = () => {
+        setNextAppointmentTimePickerVisibility(false)
+    }
+
+    const handleNextAppointmentTimeConfirm = (date) => {
+        const formattedTime = date.toLocaleTimeString('en-GB', {
+            hour: '2-digit',
+            minute: '2-digit'
+        })
+        setNextAppointmentTimeString(formattedTime)
+        setNextAppointmentTime(date)
+        hideNextAppointmentTimePicker()
     }
 
     const handleSubmit = async () => {
@@ -85,24 +160,75 @@ const AddMedicalRecord = () => {
             console.log("Missing petId or vetId")
             return
         }
-        if (!title.trim() || !visitDate || !title.trim() || !visitDateString.trim() || !diagnosis.trim() || !treatment.trim()) {
+        if (!title.trim() || !visitDate || !visitDateString.trim() || !diagnosis.trim() || !treatment.trim()) {
             alert("Please fill in all required fields")
+            return
+        }
+
+        if (hasNextAppointment && (!nextAppointmentDate || !nextAppointmentTime || !nextAppointmentTitle.trim())) {
+            alert("Please add a title, date, and time for the next appointment")
             return
         }
 
         setLoading(true)
 
         try {
+            let nextAppointmentISO = null
+            if (hasNextAppointment && nextAppointmentDate) {
+                const combined = new Date(nextAppointmentDate)
+                if (nextAppointmentTime) {
+                    combined.setHours(nextAppointmentTime.getHours(), nextAppointmentTime.getMinutes(), 0, 0)
+                }
+                nextAppointmentISO = combined.toISOString()
+            }
+
             await addMedicalRecord({
                 title: title.trim() || "General Checkup",
                 visitDate: (visitDate ?? new Date()).toISOString(),
                 diagnosis: diagnosis.trim(),
                 treatment: treatment.trim(),
                 notes: notes.trim() || null,
-                nextAppointment: nextAppointment ? nextAppointment.toISOString() : null,
+                nextAppointment: nextAppointmentISO,
+                nextAppointmentTitle: hasNextAppointment ? nextAppointmentTitle.trim() : null,
                 vetId: vetData.$id,
                 petId: petId
             })
+
+            if (hasNextAppointment && nextAppointmentISO) {
+                const eventTitle = nextAppointmentTitle.trim() || "Next appointment"
+                const description = petName ? `Pet: ${petName}` : null
+                const timeLabel = nextAppointmentTimeString || null
+
+                const calendarEvents = []
+                
+                if (user?.$id) {
+                    calendarEvents.push(
+                        createCalendarEvent({
+                            targetUserId: user.$id,
+                            title: eventTitle,
+                            description,
+                            whenISO: nextAppointmentISO,
+                            timeLabel,
+                        })
+                    )
+                }
+                console.log("petOwnerId before creating event:", petOwnerId)
+                if (petOwnerId) {
+                    calendarEvents.push(
+                        createCalendarEvent({
+                            targetUserId: petOwnerId,
+                            title: eventTitle,
+                            description,
+                            whenISO: nextAppointmentISO,
+                            timeLabel,
+                        })
+                    )
+                }
+
+                if (calendarEvents.length > 0) {
+                    await Promise.allSettled(calendarEvents)
+                }
+            }
 
             setTitle("")
             const now = new Date()
@@ -111,8 +237,12 @@ const AddMedicalRecord = () => {
             setDiagnosis("")
             setTreatment("")
             setNotes("")
-            setNextAppointment(null)
-            setNextAppointmentString("")
+            setNextAppointmentTitle("")
+            setHasNextAppointment(false)
+            setNextAppointmentDate(null)
+            setNextAppointmentDateString("")
+            setNextAppointmentTime(null)
+            setNextAppointmentTimeString("")
 
             router.push({ pathname: `/patients/medicalRecordVet`, params: { petId: petId } })
         } catch (error) {
@@ -132,8 +262,12 @@ const AddMedicalRecord = () => {
             setDiagnosis("")
             setTreatment("")
             setNotes("")
-            setNextAppointment(null)
-            setNextAppointmentString("")
+            setNextAppointmentTitle("")
+            setHasNextAppointment(false)
+            setNextAppointmentDate(null)
+            setNextAppointmentDateString("")
+            setNextAppointmentTime(null)
+            setNextAppointmentTimeString("")
             router.push({ pathname: `/patients/medicalRecordVet`, params: { petId: petId } })
         } catch (error) {
             console.log("Canceling add medical record form:", error)
@@ -235,51 +369,106 @@ const AddMedicalRecord = () => {
                 />
                 <Spacer />
 
-                <ThemedText style={[styles.label, { color: Colors.primary }]}>Next Appointment</ThemedText>
-                <Spacer />
-
-                <ThemedButton
-                    style={[styles.picker, { backgroundColor: theme.uiBackground }]}
-                    onPress={showNextAppointmentPicker}
-                >
-                    <View style={styles.row}>
-                        <ThemedText style={{ color: theme.text }}>
-                            {nextAppointmentString || "Select Next Appointment"}
-                        </ThemedText>
-                        <Ionicons name="chevron-down" size={20} color={theme.text} />
-                    </View>
-                </ThemedButton>
-
-                <DateTimePickerModal
-                    isVisible={isNextAppointmentPickerVisible}
-                    mode="date"
-                    onConfirm={handleNextAppointmentConfirm}
-                    onCancel={hideNextAppointmentPicker}
-                    pickerContainerStyleIOS={{ backgroundColor: theme.navBackground }}
-                    pickerStyleIOS={{ backgroundColor: theme.navBackground }}
-                    textColor={theme.text}
-                    customConfirmButtonIOS={({ onPress }) => (
-                        <ThemedButton onPress={onPress} style={{ alignItems: "center", width: '80%', alignSelf: 'center' }}>
-                            <ThemedText>Confirm</ThemedText>
-                        </ThemedButton>
-                    )}
-                    customCancelButtonIOS={({ onPress }) => (
-                        <ThemedButton onPress={onPress} style={{ alignItems: "center", width: '80%', alignSelf: 'center' }}>
-                            <ThemedText>Cancel</ThemedText>
-                        </ThemedButton>
-                    )}
-                />
-
-                {nextAppointmentString && (
-                    <ThemedButton
+                <View style={styles.nextHeader}>
+                    <Pressable
+                        style={styles.checkboxRow}
                         onPress={() => {
-                            setNextAppointment(null)
-                            setNextAppointmentString("")
+                            const nextValue = !hasNextAppointment
+                            setHasNextAppointment(nextValue)
+                            if (!nextValue) {
+                                setNextAppointmentTitle("")
+                                setNextAppointmentDate(null)
+                                setNextAppointmentDateString("")
+                                setNextAppointmentTime(null)
+                                setNextAppointmentTimeString("")
+                            }
                         }}
-                        style={[styles.clearButton, { backgroundColor: Colors.warning }]}
                     >
-                        <Text style={{ color: '#fff' }}>Clear Next Appointment</Text>
-                    </ThemedButton>
+                        <Ionicons
+                            name={hasNextAppointment ? "checkbox" : "square-outline"}
+                            size={22}
+                            color={hasNextAppointment ? Colors.primary : theme.text}
+                        />
+                        <ThemedText style={[styles.label, { marginLeft: 10, color: Colors.primary }]}>Next Appointment</ThemedText>
+                    </Pressable>
+                </View>
+
+                {hasNextAppointment && (
+                    <>
+                        <Spacer height={20} />
+                        <ThemedText style={styles.label}>Title</ThemedText>
+                        <ThemedTextInput
+                            style={styles.input}
+                            placeholder="Follow-up"
+                            value={nextAppointmentTitle}
+                            onChangeText={setNextAppointmentTitle}
+                        />
+                        <Spacer height={20} />
+
+                        <ThemedText style={styles.label}>Date</ThemedText>
+                        <ThemedButton
+                            style={[styles.picker, { backgroundColor: theme.uiBackground }]}
+                            onPress={showNextAppointmentPicker}
+                        >
+                            <View style={styles.row}>
+                                <ThemedText style={{ color: theme.text }}>
+                                    {nextAppointmentDateString || "Select Date"}
+                                </ThemedText>
+                                <Ionicons name="chevron-down" size={20} color={theme.text} />
+                            </View>
+                        </ThemedButton>
+
+                        <DateTimePickerModal
+                            isVisible={isNextAppointmentPickerVisible}
+                            mode="date"
+                            onConfirm={handleNextAppointmentConfirm}
+                            onCancel={hideNextAppointmentPicker}
+                            pickerContainerStyleIOS={{ backgroundColor: theme.navBackground }}
+                            pickerStyleIOS={{ backgroundColor: theme.navBackground }}
+                            textColor={theme.text}
+                        />
+
+                        <Spacer height={20} />
+
+                        <ThemedText style={styles.label}>Time</ThemedText>
+
+                        <ThemedButton
+                            style={[styles.picker, { backgroundColor: theme.uiBackground }]}
+                            onPress={showNextAppointmentTimePicker}
+                        >
+                            <View style={styles.row}>
+                                <ThemedText style={{ color: theme.text }}>
+                                    {nextAppointmentTimeString || "Select Time"}
+                                </ThemedText>
+                                <Ionicons name="chevron-down" size={20} color={theme.text} />
+                            </View>
+                        </ThemedButton>
+
+                        <DateTimePickerModal
+                            isVisible={isNextAppointmentTimePickerVisible}
+                            mode="time"
+                            onConfirm={handleNextAppointmentTimeConfirm}
+                            onCancel={hideNextAppointmentTimePicker}
+                            pickerContainerStyleIOS={{ backgroundColor: theme.navBackground }}
+                            pickerStyleIOS={{ backgroundColor: theme.navBackground }}
+                            textColor={theme.text}
+                        />
+
+                        {(nextAppointmentDateString || nextAppointmentTimeString) && (
+                            <ThemedButton
+                                onPress={() => {
+                                    setNextAppointmentTitle("")
+                                    setNextAppointmentDate(null)
+                                    setNextAppointmentDateString("")
+                                    setNextAppointmentTime(null)
+                                    setNextAppointmentTimeString("")
+                                }}
+                                style={[styles.clearButton, { backgroundColor: Colors.warning }]}
+                            >
+                                <Text style={{ color: '#fff' }}>Clear Next Appointment</Text>
+                            </ThemedButton>
+                        )}
+                    </>
                 )}
 
                 <Spacer />
@@ -346,6 +535,16 @@ const styles = StyleSheet.create({
         marginTop: 10,
         width: '60%',
         alignSelf: 'center',
+        alignItems: 'center',
+    },
+    nextHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginHorizontal: 40,
+    },
+    checkboxRow: {
+        flexDirection: 'row',
         alignItems: 'center',
     },
     cancel: {
