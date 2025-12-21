@@ -18,29 +18,29 @@ const RootLayout = () => {
 
   return (
     <UserProvider>
-      <PetsProvider>
-        <VetProvider>
-          <MedicalRecordProvider>
-            <PassportProvider>
-              <VaccinationProvider>
-                <MedicineProvider>
-                <StatusBar value="auto" />
-                <Stack screenOptions={{
-                  headerStyle: { backgroundColor: theme.navBackground },
-                  headerTintColor: theme.title,
-                }}>
-                  <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-                  <Stack.Screen name="(dashboard)" options={{ headerShown: false }} />
-                  <Stack.Screen name="(vet)" options={{ headerShown: false }} />
-                  <Stack.Screen name="index" options={{ title: 'Home' }} />
+        <PetsProvider>
+          <VetProvider>
+            <MedicalRecordProvider>
+              <PassportProvider>
+                <VaccinationProvider>
+                  <MedicineProvider>
+                  <StatusBar value="auto" />
+                  <Stack screenOptions={{
+                    headerStyle: { backgroundColor: theme.navBackground },
+                    headerTintColor: theme.title,
+                  }}>
+                    <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+                    <Stack.Screen name="(dashboard)" options={{ headerShown: false }} />
+                    <Stack.Screen name="(vet)" options={{ headerShown: false }} />
+                    <Stack.Screen name="index" options={{ title: 'Home' }} />
 
-                </Stack>
-                </MedicineProvider>
-              </VaccinationProvider>
-            </PassportProvider>
-          </MedicalRecordProvider>
-        </VetProvider>
-      </PetsProvider>
+                  </Stack>
+                  </MedicineProvider>
+                </VaccinationProvider>
+              </PassportProvider>
+            </MedicalRecordProvider>
+          </VetProvider>
+        </PetsProvider>
     </UserProvider>
   )
 }

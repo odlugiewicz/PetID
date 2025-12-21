@@ -3,9 +3,12 @@ import { useRouter, useLocalSearchParams } from 'expo-router'
 import { useState, useEffect } from 'react'
 import { useVaccinations } from '../../../hooks/useVaccinations'
 import { useVet } from '../../../hooks/useVets'
+import { usePets } from '../../../hooks/usePets'
 import { Colors } from '../../../constants/Colors'
 import { Ionicons } from '@expo/vector-icons'
 import DateTimePickerModal from "react-native-modal-datetime-picker"
+import { databases } from "../../../lib/appwrite"
+import { ID, Permission, Role } from "react-native-appwrite"
 
 import ThemedView from "../../../components/ThemedView"
 import ThemedText from "../../../components/ThemedText"
@@ -22,6 +25,7 @@ const AddVaccination = () => {
     const theme = Colors[colorScheme] ?? Colors.light
     const { addVaccination } = useVaccinations()
     const { vetData, fetchVetData } = useVet()
+    const { fetchPetById } = usePets()
     const { patient: petId } = useLocalSearchParams()
 
 
@@ -43,6 +47,60 @@ const AddVaccination = () => {
     const [isApplicationDatePickerVisible, setApplicationDatePickerVisibility] = useState(false)
     const [isExpiryDatePickerVisible, setExpiryDatePickerVisibility] = useState(false)
     const [loading, setLoading] = useState(false)
+    const [petOwnerId, setPetOwnerId] = useState(null)
+    const [petName, setPetName] = useState("")
+
+    useEffect(() => {
+        const loadPet = async () => {
+            if (!petId) return
+            try {
+                const pet = await fetchPetById(petId)
+                if (pet) {
+                    setPetOwnerId(pet.userId ?? null)
+                    setPetName(pet.name ?? "")
+                }
+            } catch (error) {
+                console.log("Failed to load pet for vaccination event:", error)
+            }
+        }
+        loadPet()
+    }, [petId, fetchPetById])
+
+    const ensurePetOwner = async () => {
+        if (petOwnerId) return petOwnerId
+        if (!petId) return null
+        try {
+            const pet = await fetchPetById(petId)
+            if (pet) {
+                setPetOwnerId(pet.userId ?? null)
+                setPetName(pet.name ?? "")
+                return pet.userId ?? null
+            }
+        } catch (error) {
+            console.log("Failed to ensure pet owner:", error)
+        }
+        return null
+    }
+
+    const createExpiryEventForOwner = async ({ whenISO, timeLabel }) => {
+        if (!petOwnerId || !whenISO) return
+        try {
+            await databases.createDocument(
+                "69051e15000f0c86fdb1",
+                "events",
+                ID.unique(),
+                {
+                    userId: petOwnerId,
+                    title: `Vaccine expires: ${vaccineName.trim() || 'Vaccine'}`,
+                    description: petName ? `Pet: ${petName}` : null,
+                    eventDate: whenISO,
+                    eventTime: timeLabel || null,
+                },
+            )
+        } catch (error) {
+            console.log("Failed to add expiry event:", error)
+        }
+    }
 
     const showApplicationDatePicker = () => {
         setApplicationDatePickerVisibility(true)
@@ -106,6 +164,16 @@ const AddVaccination = () => {
                 vetId: vetData.$id,
                 notes: notes.trim() || null
             })
+
+            const ownerId = await ensurePetOwner()
+            if (ownerId) {
+                await createExpiryEventForOwner({
+                    whenISO: (expiryDate ?? new Date()).toISOString(),
+                    timeLabel: null,
+                })
+            } else {
+                console.log("Skipped expiry event: missing pet owner id")
+            }
 
             setVaccineName("")
             setDosage("")

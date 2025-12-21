@@ -130,7 +130,8 @@ const PatientDetails = () => {
                 pathname: '/patients/medicalRecordVet',
                 params: { petId: pet.$id }
             })} style={[styles.options, { backgroundColor: theme.uiBackground }]} >
-                <ThemedText style={{ fontSize: 20 }}>
+                <Ionicons name="clipboard" size={20} color={Colors.primary} />
+                <ThemedText style={{ fontSize: 20, marginRight: 130, marginLeft: 10 }}>
                     Medical Records
                 </ThemedText>
                 <Ionicons name="chevron-forward-outline" size={20} color={theme.text} />
@@ -140,7 +141,8 @@ const PatientDetails = () => {
                 pathname: '/patients/vaccinationVet',
                 params: { petId: pet.$id }
             })} style={[styles.options, { backgroundColor: theme.uiBackground }]} >
-                <ThemedText style={{ fontSize: 20 }}>
+                <Ionicons name="eyedrop" size={20} color={Colors.primary} />
+                <ThemedText style={{ fontSize: 20, marginRight: 165, marginLeft: 10 }}>
                     Vaccinations
                 </ThemedText>
                 <Ionicons name="chevron-forward-outline" size={20} color={theme.text} />
@@ -150,7 +152,8 @@ const PatientDetails = () => {
                 pathname: '/patients/medicineVet',
                 params: { petId: pet.$id }
             })} style={[styles.options, { backgroundColor: theme.uiBackground }]} >
-                <ThemedText style={{ fontSize: 20 }}>
+                <Ionicons name="medical" size={20} color={Colors.primary} />
+                <ThemedText style={{ fontSize: 20, marginRight: 185, marginLeft: 10 }}>
                     Medicines
                 </ThemedText>
                 <Ionicons name="chevron-forward-outline" size={20} color={theme.text} />
@@ -161,7 +164,8 @@ const PatientDetails = () => {
                     pathname: '/patients/passportVet',
                     params: { petId: pet.$id }
                 })} style={[styles.options, { backgroundColor: theme.uiBackground }]} >
-                    <ThemedText style={{ fontSize: 20 }}>
+                    <Ionicons name="book" size={20} color={Colors.primary} />
+                    <ThemedText style={{ fontSize: 20, marginRight: 195, marginLeft: 10, color: theme.text }}>
                         Passport
                     </ThemedText>
                     <Ionicons name="chevron-forward-outline" size={20} color={theme.text} />
@@ -219,8 +223,6 @@ const styles = StyleSheet.create({
         width: '90%',
         alignSelf: "center",
         flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
     },
     createPassportButton: {
         marginTop: 20,

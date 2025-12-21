@@ -150,6 +150,7 @@ const CalendarUser = () => {
             setEventTimeString('')
             setModalVisible(false)
 
+
             Alert.alert('Success', 'Event added successfully')
         } catch (error) {
             console.error('Failed to add event:', error)
