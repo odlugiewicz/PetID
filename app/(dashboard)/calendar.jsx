@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons'
 import { ID, Permission, Role, Query } from 'react-native-appwrite'
 import { databases } from '../../lib/appwrite'
 import { useUser } from '../../hooks/useUser'
+import { useNotifications } from '../../contexts/NotificationContext'
 import { Colors } from '../../constants/Colors'
 import ThemedView from '../../components/ThemedView'
 import ThemedText from '../../components/ThemedText'
@@ -23,6 +24,7 @@ const CalendarUser = () => {
     const theme = Colors[colorScheme] ?? Colors.light
     const router = useRouter()
     const { user } = useUser()
+    const { scheduleNotificationForEvent, refreshNotifications, cancelNotificationsForEvent } = useNotifications()
 
     const [selectedDate, setSelectedDate] = useState('')
     const [events, setEvents] = useState({})
@@ -144,6 +146,16 @@ const CalendarUser = () => {
                 [selectedDate]: [...(prev[selectedDate] || []), newEvent]
             }))
 
+            await scheduleNotificationForEvent({
+                $id: newEventDoc.$id,
+                userId: user.$id,
+                title: eventTitle.trim(),
+                eventDate: eventDate.toISOString(),
+                eventTime: eventTimeString || '12:00',
+            })
+
+            await refreshNotifications()
+
             setEventTitle('')
             setEventDescription('')
             setEventTime(null)
@@ -151,7 +163,7 @@ const CalendarUser = () => {
             setModalVisible(false)
 
 
-            Alert.alert('Success', 'Event added successfully')
+            Alert.alert('Success', 'Event added successfully!')
         } catch (error) {
             console.error('Failed to add event:', error)
             Alert.alert('Error', 'Failed to add event. Please try again.')
@@ -181,6 +193,8 @@ const CalendarUser = () => {
                                 ...prev,
                                 [selectedDate]: prev[selectedDate].filter(e => e.id !== eventId)
                             }))
+
+                            await cancelNotificationsForEvent(eventId)
 
                             Alert.alert('Success', 'Event deleted successfully')
                         } catch (error) {
