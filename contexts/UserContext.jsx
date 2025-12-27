@@ -1,11 +1,12 @@
 import { createContext, useState, useEffect } from "react";
-import { account, databases, users, functions } from "../lib/appwrite";
+import { account, databases } from "../lib/appwrite";
 import { ID, Query, Permission, Role } from "react-native-appwrite";
 import { is } from "date-fns/locale";
 
 const DATABASE_ID = "69051e15000f0c86fdb1";
 const VETS_TABLE_ID = "vets";
 const PET_OWNERS_TABLE_ID = "pet_owners";
+const VERIFIED_VETS_TABLE_ID = "verified_vets";
 
 export const UserContext = createContext();
 
@@ -53,35 +54,49 @@ export function UserProvider({ children }) {
   async function register(email, password, name, phone, lastName, address, licenseNumber, isVet) {
     try {
       if (isVet) {
-        console.log("Weryfikacja weterynarza...");
+        console.log("Weryfikacja weterynarza w tabeli verified_vets...");
 
-        const FUNCTION_ID = "693d74ce00038ba05ea6";
+        if (!licenseNumber || !name || !lastName) {
+          throw new Error("Brak danych do weryfikacji weterynarza.");
+        }
 
-        const execution = await functions.createExecution(
-          FUNCTION_ID,
-          JSON.stringify({
-            firstName: name,
-            lastName: lastName,
-            licenseNumber: licenseNumber
-          })
+        const normalizedFirstName = name.trim();
+        const normalizedLastName = lastName.trim();
+        const normalizedPwz = licenseNumber.trim();
+
+        const verifiedVets = await databases.listDocuments(
+          DATABASE_ID,
+          VERIFIED_VETS_TABLE_ID,
+          [
+            Query.equal("firstName", normalizedFirstName),
+            Query.equal("lastName", normalizedLastName),
+            Query.equal("pwz", normalizedPwz),
+          ]
         );
 
-        if (execution.status !== 'completed') {
-          throw new Error("Błąd połączenia z serwerem weryfikacyjnym.");
+        if (!verifiedVets.total) {
+          throw new Error("Nie znaleziono lekarza w systemie o podanych danych. Sprawdź dane.");
         }
 
-        const result = JSON.parse(execution.responseBody);
-        console.log("Wynik weryfikacji:", result);
+        const vetVerification = verifiedVets.documents[0];
 
-        if (!result.isValid) {
-          throw new Error(result.message || "Weryfikacja nieudana. Sprawdź dane.");
+        if (vetVerification.alreadyRegistered) {
+          throw new Error("Ten weterynarz jest już zarejestrowany.");
         }
+
+        await databases.updateDocument(
+          DATABASE_ID,
+          VERIFIED_VETS_TABLE_ID,
+          vetVerification.$id,
+          { alreadyRegistered: true }
+        );
       }
 
       await account.create(ID.unique(), email, password, name, phone);
       await login(email, password);
 
-      const userId = (await account.get()).$id;
+      const accountData = await account.get();
+      const userId = accountData.$id;
 
       if (isVet) {
         await databases.createDocument(
@@ -95,6 +110,8 @@ export function UserProvider({ children }) {
             Permission.delete(Role.user(userId)),
           ]
         )
+
+        setUser({ ...accountData, role: "vet" });
       } else {
         await databases.createDocument(
           DATABASE_ID,
@@ -110,6 +127,7 @@ export function UserProvider({ children }) {
       }
     } catch (error) {
       console.error("Failed to register:", error);
+      throw error;
     }
   }
 
