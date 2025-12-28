@@ -58,10 +58,6 @@ const UserProfile = () => {
 
       <Spacer height={10} />
 
-      <ThemedButton style={styles.button}>
-        <Text style={{ color: 'white' }}>Edit Profile</Text>
-      </ThemedButton>
-
       <ThemedButton onPress={logout} style={styles.logout}>
         <Text style={{ color: 'white' }}>Logout</Text>
       </ThemedButton>

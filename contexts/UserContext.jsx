@@ -54,10 +54,9 @@ export function UserProvider({ children }) {
   async function register(email, password, name, phone, lastName, address, licenseNumber, isVet) {
     try {
       if (isVet) {
-        console.log("Weryfikacja weterynarza w tabeli verified_vets...");
 
         if (!licenseNumber || !name || !lastName) {
-          throw new Error("Brak danych do weryfikacji weterynarza.");
+          throw new Error("Missing required fields.");
         }
 
         const normalizedFirstName = name.trim();
@@ -75,13 +74,13 @@ export function UserProvider({ children }) {
         );
 
         if (!verifiedVets.total) {
-          throw new Error("Nie znaleziono lekarza w systemie o podanych danych. Sprawdź dane.");
+          throw new Error("Veterinarian verification failed. Please check your details.");
         }
 
         const vetVerification = verifiedVets.documents[0];
 
         if (vetVerification.alreadyRegistered) {
-          throw new Error("Ten weterynarz jest już zarejestrowany.");
+          throw new Error("This veterinarian is already registered.");
         }
 
         await databases.updateDocument(
@@ -124,6 +123,8 @@ export function UserProvider({ children }) {
             Permission.delete(Role.user(userId)),
           ]
         )
+
+        setUser({ ...accountData, role: "user" });
       }
     } catch (error) {
       console.error("Failed to register:", error);
