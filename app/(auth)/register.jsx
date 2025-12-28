@@ -80,7 +80,7 @@ const Register = () => {
                     <Spacer height={20} />
 
                     <ThemedTextInput
-                        style={{ width: '100%', marginBottom: 10 }}
+                        style={styles.input}
                         placeholder="Email"
                         keyboardType="email-address"
                         onChangeText={setEmail}
@@ -88,7 +88,7 @@ const Register = () => {
                     />
 
                     <ThemedTextInput
-                        style={{ width: '100%', marginBottom: 10 }}
+                        style={styles.input}
                         placeholder="Password"
                         onChangeText={setPassword}
                         value={password}
@@ -96,21 +96,21 @@ const Register = () => {
                     />
 
                     <ThemedTextInput
-                        style={{ width: '100%', marginBottom: 10 }}
+                        style={styles.input}
                         placeholder="First Name"
                         onChangeText={setFirstName}
                         value={firstName}
                     />
 
                     <ThemedTextInput
-                        style={{ width: '100%', marginBottom: 10 }}
+                        style={styles.input}
                         placeholder="Last Name"
                         onChangeText={setLastName}
                         value={lastName}
                     />
 
                     <ThemedTextInput
-                        style={{ width: '100%', marginBottom: 10 }}
+                        style={styles.input}
                         placeholder="Phone"
                         keyboardType="phone-pad"
                         onChangeText={setPhoneNumber}
@@ -118,7 +118,7 @@ const Register = () => {
                     />
 
                     <ThemedTextInput
-                        style={{ width: '100%', marginBottom: 10 }}
+                        style={styles.input}
                         placeholder="Address"
                         onChangeText={setAddress}
                         value={address}
@@ -126,7 +126,7 @@ const Register = () => {
 
                     {isVet && (
                         <ThemedTextInput
-                            style={{ width: '100%', marginBottom: 10 }}
+                            style={styles.input}
                             placeholder="License Number"
                             onChangeText={setLicenseNumber}
                             value={licenseNumber}
@@ -216,5 +216,13 @@ const styles = StyleSheet.create({
         width: 150,
         height: 150,
         resizeMode: 'contain',
+    },
+    input: {
+        width: '100%',
+        marginBottom: 10,
+        backgroundColor: '#f4fdfeff',
+        borderRadius: 8,
+        paddingHorizontal: 15,
+        paddingVertical: 15,
     }
 })
