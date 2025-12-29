@@ -28,7 +28,6 @@ const Patients = () => {
           Your Patients
         </ThemedText>
 
-        <Spacer />
 
         <FlatList
           data={patients}

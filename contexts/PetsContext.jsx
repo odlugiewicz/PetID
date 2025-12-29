@@ -5,6 +5,7 @@ import { useUser } from "../hooks/useUser";
 
 const DATABASE_ID = "69051e15000f0c86fdb1"
 const TABLE_ID = "pets"
+const PET_OWNERS_TABLE_ID = "pet_owners"
 const BUCKET_ID = "69111f64001a3b3c4563"
 
 export const PetsContext = createContext()
@@ -100,11 +101,21 @@ export function PetsProvider({ children }) {
                 imageId = await uploadPetImage(imageAsset, user.$id);
             }
 
+            const ownerResponse = await databases.listDocuments(
+                DATABASE_ID,
+                PET_OWNERS_TABLE_ID,
+                [
+                    Query.equal("userId", user.$id)
+                ]
+            );
+
+            const ownerId = ownerResponse.documents.length > 0 ? ownerResponse.documents[0].$id : null;
+
             await databases.createDocument(
                 DATABASE_ID,
                 TABLE_ID,
                 ID.unique(),
-                { ...data, userId: user.$id, imageId: imageId },
+                { ...data, userId: user.$id, ownerId: ownerId, imageId: imageId, },
                 [
                     Permission.read(Role.user(user.$id)),
                     Permission.update(Role.user(user.$id)),

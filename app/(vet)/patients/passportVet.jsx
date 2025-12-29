@@ -198,26 +198,6 @@ const PassportVet = () => {
                     </View>
                 </ThemedCard>
 
-                <ThemedCard style={styles.section}>
-                    <ThemedText style={styles.sectionTitle}>Rabies Vaccination</ThemedText>
-                    <Spacer height={10} />
-
-                    <View style={styles.infoRow}>
-                        <ThemedText style={styles.label}>Vaccination Date:</ThemedText>
-                        <ThemedText style={styles.value}>{formatDate(passport.rabiesVaccinationDate)}</ThemedText>
-                    </View>
-
-                    <View style={styles.infoRow}>
-                        <ThemedText style={styles.label}>Vaccine Name:</ThemedText>
-                        <ThemedText style={styles.value}>{passport.rabiesVaccineName || 'N/A'}</ThemedText>
-                    </View>
-
-                    <View style={styles.infoRow}>
-                        <ThemedText style={styles.label}>Batch Number:</ThemedText>
-                        <ThemedText style={styles.value}>{passport.rabiesBatchNumber || 'N/A'}</ThemedText>
-                    </View>
-                </ThemedCard>
-
                 {passport.otherPreventiveMeasures && (
                     <ThemedCard style={styles.section}>
                         <ThemedText style={styles.sectionTitle}>Other Preventive Health Measures</ThemedText>

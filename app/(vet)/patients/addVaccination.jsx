@@ -220,7 +220,7 @@ const AddVaccination = () => {
                 <ThemedText title={true} style={styles.heading} safe={true}>
                     Add Vaccination
                 </ThemedText>
-                <Spacer />
+                <Spacer height={10}/>
 
                 <ThemedText style={styles.label}>Vaccine Name</ThemedText>
                 <ThemedTextInput
@@ -229,7 +229,7 @@ const AddVaccination = () => {
                     value={vaccineName}
                     onChangeText={setVaccineName}
                 />
-                <Spacer />
+                <Spacer height={10}/>
 
                 <ThemedText style={styles.label}>Dosage</ThemedText>
                 <ThemedTextInput
@@ -238,7 +238,7 @@ const AddVaccination = () => {
                     value={dosage}
                     onChangeText={setDosage}
                 />
-                <Spacer />
+                <Spacer height={10}/>
 
                 <ThemedText style={styles.label}>Application Date</ThemedText>
                 <ThemedButton
@@ -273,7 +273,7 @@ const AddVaccination = () => {
                     )}
                 />
 
-                <Spacer />
+                <Spacer height={10}/>
 
                 <ThemedText style={styles.label}>Expiry Date</ThemedText>
                 <ThemedButton
@@ -308,7 +308,7 @@ const AddVaccination = () => {
                     )}
                 />
 
-                <Spacer />
+                <Spacer height={10}/>
 
                 <ThemedText style={styles.label}>Manufacturer</ThemedText>
                 <ThemedTextInput
@@ -317,7 +317,7 @@ const AddVaccination = () => {
                     value={manufacturer}
                     onChangeText={setManufacturer}
                 />
-                <Spacer />
+                <Spacer height={10}/>
 
                 <ThemedText style={styles.label}>Batch Number</ThemedText>
                 <ThemedTextInput
@@ -326,7 +326,7 @@ const AddVaccination = () => {
                     value={batchNumber}
                     onChangeText={setBatchNumber}
                 />
-                <Spacer />
+                <Spacer height={10}/>
 
                 <ThemedText style={styles.label}>Notes (Optional)</ThemedText>
                 <ThemedTextInput
@@ -338,8 +338,7 @@ const AddVaccination = () => {
                     numberOfLines={4}
                 />
 
-                <Spacer />
-                <Spacer />
+                <Spacer height={20}/>
 
                 <View style={styles.buttonContainer}>
                     <ThemedButton
@@ -347,7 +346,7 @@ const AddVaccination = () => {
                         style={styles.submitButton}
                         disabled={loading}
                     >
-                        <Text style={{ color: theme.button, fontWeight: 'bold' }}>Add</Text>
+                        <Text style={{ color: theme.button, fontWeight: 'bold', }}>Add</Text>
                     </ThemedButton>
 
                     <ThemedButton

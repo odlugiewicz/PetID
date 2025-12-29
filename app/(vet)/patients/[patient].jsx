@@ -3,6 +3,8 @@ import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router'
 import { useEffect, useState, useCallback } from 'react'
 import { useVet } from '../../../hooks/useVets'
 import { usePets } from '../../../hooks/usePets'
+import { databases } from '../../../lib/appwrite'
+import { Query } from 'react-native-appwrite'
 import { Colors } from '../../../constants/Colors'
 import { Ionicons } from '@expo/vector-icons'
 
@@ -33,6 +35,7 @@ const PatientDetails = () => {
     const router = useRouter()
 
     const [pet, setPet] = useState(null)
+    const [ownerName, setOwnerName] = useState('Loading...')
 
     const { patient: id } = useLocalSearchParams()
     const { fetchPetById, getPetImageUrl } = usePets()
@@ -41,6 +44,22 @@ const PatientDetails = () => {
     const loadPet = useCallback(async () => {
         const petData = await fetchPetById(id)
         setPet(petData)
+        
+        if (petData?.ownerId) {
+            try {
+                const ownerDoc = await databases.getDocument(
+                    '69051e15000f0c86fdb1',
+                    'pet_owners',
+                    petData.ownerId
+                )
+                setOwnerName(`${ownerDoc.firstName} ${ownerDoc.lastName}`)
+            } catch (error) {
+                console.error('Failed to fetch owner:', error)
+                setOwnerName('Unknown')
+            }
+        } else {
+            setOwnerName('Unknown')
+        }
     }, [id, fetchPetById])
 
     useEffect(() => {
@@ -98,7 +117,7 @@ const PatientDetails = () => {
                 <Spacer height={20} />
 
                 <ThemedText style={styles.title}>Owner:</ThemedText>
-                <ThemedText style={styles.text}>{pet.ownerName}</ThemedText>
+                <ThemedText style={styles.text}>{ownerName}</ThemedText>
 
                 {pet.passportId && (
                     <ThemedView style={{ backgroundColor: null }}>

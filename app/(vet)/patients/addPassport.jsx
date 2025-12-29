@@ -63,16 +63,10 @@ const AddPassport = () => {
     const [ownerAddress, setOwnerAddress] = useState("")
     const [ownerPhone, setOwnerPhone] = useState("")
 
-    const [rabiesVaccinationDate, setRabiesVaccinationDate] = useState(null)
-    const [rabiesVaccinationDateString, setRabiesVaccinationDateString] = useState("")
-    const [rabiesVaccineName, setRabiesVaccineName] = useState("")
-    const [rabiesBatchNumber, setRabiesBatchNumber] = useState("")
-
     const [otherPreventiveMeasures, setOtherPreventiveMeasures] = useState("")
 
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
     const [isPetsBirthDatePickerVisible, setPetsBirthDatePickerVisibility] = useState(false)
-    const [isRabiesVacDatePickerVisible, setRabiesVacDatePickerVisibility] = useState(false)
     const [loading, setLoading] = useState(false)
 
     const showDatePicker = () => {
@@ -113,25 +107,6 @@ const AddPassport = () => {
         hidePetsBirthDatePicker()
     }
 
-    const showRabiesVacDatePicker = () => {
-        setRabiesVacDatePickerVisibility(true)
-    }
-
-    const hideRabiesVacDatePicker = () => {
-        setRabiesVacDatePickerVisibility(false)
-    }
-
-    const handleRabiesVacDateConfirm = (date) => {
-        const formattedDate = date.toLocaleDateString('en-GB', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric'
-        })
-        setRabiesVaccinationDateString(formattedDate)
-        setRabiesVaccinationDate(date)
-        hideRabiesVacDatePicker()
-    }
-
     const pickImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (status !== 'granted') {
@@ -154,7 +129,7 @@ const AddPassport = () => {
 
 
     const handleSubmit = async () => {
-        if (!passportNumber.trim() || !issuingCountry.trim() || !ownerName.trim() || !rabiesVaccineName.trim() || !rabiesBatchNumber.trim() || !rabiesVaccinationDate || !petsName.trim() || !petsBirthDate || !petsNationality.trim() || !petColor.trim() || !ownerPhone.trim() || !ownerAddress.trim() || !issuingAuthority || !petsBreed.trim() || !petsSpecies.trim() || !image) {
+        if (!passportNumber.trim() || !issuingCountry.trim() || !ownerName.trim() || !petsName.trim() || !petsBirthDate || !petsNationality.trim() || !petColor.trim() || !ownerPhone.trim() || !ownerAddress.trim() || !issuingAuthority || !petsBreed.trim() || !petsSpecies.trim() || !image) {
             Alert.alert("Error", "Please fill in all required fields")
             return
         }
@@ -175,9 +150,6 @@ const AddPassport = () => {
             ownerName: ownerName.trim(),
             ownerAddress: ownerAddress.trim(),
             ownerPhone: ownerPhone.trim(),
-            rabiesVaccinationDate: rabiesVaccinationDate.toISOString(),
-            rabiesVaccineName: rabiesVaccineName.trim(),
-            rabiesBatchNumber: rabiesBatchNumber.trim(),
             otherPreventiveMeasures: otherPreventiveMeasures.trim() || null,
             pet: petId,
         }
@@ -569,54 +541,6 @@ const AddPassport = () => {
                     keyboardType="phone-pad"
                 />
                 <Spacer />
-
-                <ThemedText style={[styles.sectionHeader, { color: Colors.primary }]}>
-                    Rabies Vaccination
-                </ThemedText>
-                <Spacer height={10} />
-
-                <ThemedText style={styles.label}>Vaccination Date</ThemedText>
-                <ThemedButton
-                    style={[styles.picker, { backgroundColor: theme.uiBackground }]}
-                    onPress={showRabiesVacDatePicker}
-                >
-                    <View style={styles.row}>
-                        <ThemedText style={{ color: theme.text }}>
-                            {rabiesVaccinationDateString || "Select Date"}
-                        </ThemedText>
-                        <Ionicons name="chevron-down" size={20} color={theme.text} />
-                    </View>
-                </ThemedButton>
-
-                <DateTimePickerModal
-                    isVisible={isRabiesVacDatePickerVisible}
-                    mode="date"
-                    onConfirm={handleRabiesVacDateConfirm}
-                    onCancel={hideRabiesVacDatePicker}
-                    pickerContainerStyleIOS={{ backgroundColor: theme.navBackground }}
-                    pickerStyleIOS={{ backgroundColor: theme.navBackground }}
-                    textColor={theme.text}
-                />
-
-                <Spacer />
-
-                <ThemedText style={styles.label}>Vaccine Name</ThemedText>
-                <ThemedTextInput
-                    style={styles.input}
-                    placeholder="Rabies vaccine name"
-                    value={rabiesVaccineName}
-                    onChangeText={setRabiesVaccineName}
-                />
-                <Spacer />
-
-                <ThemedText style={styles.label}>Batch Number</ThemedText>
-                <ThemedTextInput
-                    style={styles.input}
-                    placeholder="Vaccine batch number"
-                    value={rabiesBatchNumber}
-                    onChangeText={setRabiesBatchNumber}
-                />
-                <Spacer height={20} />
 
                 <ThemedText style={[styles.sectionHeader, { color: Colors.primary }]}>
                     Other Preventive Health Measures

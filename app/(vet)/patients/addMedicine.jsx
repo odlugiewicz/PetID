@@ -121,19 +121,21 @@ const AddMedicine = () => {
           textColor={theme.text}
         />
 
-        <Spacer />
+        <Spacer height={20}/>
 
-        <ThemedButton onPress={handleSubmit} disabled={loading} style={{ alignSelf: 'center', width: '40%', alignItems: 'center' }}>
-          <Text style={{ color: '#fff' }}>
-            {loading ? 'Saving...' : 'Add'}
-          </Text>
-        </ThemedButton>
+        <View style={styles.buttonsRow}>
+          <ThemedButton onPress={handleCancel} disabled={loading} style={[styles.buttonHalf, styles.cancel]}>
+            <Text style={{ color: '#fff' }}>
+              {loading ? 'Cancelling...' : 'Cancel'}
+            </Text>
+          </ThemedButton>
 
-        <ThemedButton onPress={handleCancel} disabled={loading} style={styles.cancel}>
-          <Text style={{ color: '#fff' }}>
-            {loading ? 'Cancelling...' : 'Cancel'}
-          </Text>
-        </ThemedButton>
+          <ThemedButton onPress={handleSubmit} disabled={loading} style={[styles.buttonHalf, styles.add]}>
+            <Text style={{ color: '#fff' }}>
+              {loading ? 'Saving...' : 'Add'}
+            </Text>
+          </ThemedButton>
+        </View>
 
         <Spacer />
       </ThemedScroll>
@@ -149,5 +151,8 @@ const styles = StyleSheet.create({
   input: { padding: 20, borderRadius: 6, alignSelf: 'stretch', marginHorizontal: 40, marginTop: 10 },
   picker: { padding: 20, borderRadius: 6, alignSelf: 'stretch', marginHorizontal: 40 },
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  cancel: { marginTop: 40, backgroundColor: Colors.warning, width: '40%', alignSelf: 'center', alignItems: 'center' }
+  buttonsRow: { flexDirection: 'row', justifyContent: 'space-between', alignSelf: 'center', width: '80%' },
+  buttonHalf: { flex: 1, alignItems: 'center', marginHorizontal: 5 },
+  add: { backgroundColor: Colors.primary },
+  cancel: { backgroundColor: Colors.warning }
 })

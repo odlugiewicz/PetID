@@ -471,19 +471,21 @@ const AddMedicalRecord = () => {
                     </>
                 )}
 
-                <Spacer />
+                <Spacer height={10}/>
 
-                <ThemedButton onPress={handleSubmit} disabled={loading} style={{ alignSelf: 'center', width: '40%', alignItems: 'center' }}>
-                    <Text style={{ color: '#fff' }}>
-                        {loading ? "Saving..." : "Add Record"}
-                    </Text>
-                </ThemedButton>
+                <View style={styles.buttonsRow}>
+                    <ThemedButton onPress={handleCancel} disabled={loading} style={[styles.buttonHalf, styles.cancel]}>
+                        <Text style={{ color: '#fff' }}>
+                            {loading ? "Cancelling..." : "Cancel"}
+                        </Text>
+                    </ThemedButton>
 
-                <ThemedButton onPress={handleCancel} disabled={loading} style={styles.cancel}>
-                    <Text style={{ color: '#fff' }}>
-                        {loading ? "Cancelling..." : "Cancel"}
-                    </Text>
-                </ThemedButton>
+                    <ThemedButton onPress={handleSubmit} disabled={loading} style={[styles.buttonHalf, styles.add]}>
+                        <Text style={{ color: '#fff' }}>
+                            {loading ? "Saving..." : "Add Record"}
+                        </Text>
+                    </ThemedButton>
+                </View>
 
                 <Spacer />
             </ThemedScroll>
@@ -547,11 +549,22 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
     },
+    buttonsRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignSelf: 'center',
+        width: '80%',
+        marginTop: 20,
+    },
+    buttonHalf: {
+        flex: 1,
+        alignItems: 'center',
+        marginHorizontal: 5,
+    },
+    add: {
+        backgroundColor: Colors.primary,
+    },
     cancel: {
-        marginTop: 40,
         backgroundColor: Colors.warning,
-        width: '40%',
-        alignSelf: "center",
-        alignItems: "center",
     },
 })
