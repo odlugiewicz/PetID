@@ -36,6 +36,8 @@ const PatientDetails = () => {
 
     const [pet, setPet] = useState(null)
     const [ownerName, setOwnerName] = useState('Loading...')
+    const [ownerPhone, setOwnerPhone] = useState('')
+    const [ownerAddress, setOwnerAddress] = useState('')
 
     const { patient: id } = useLocalSearchParams()
     const { fetchPetById, getPetImageUrl } = usePets()
@@ -53,12 +55,18 @@ const PatientDetails = () => {
                     petData.ownerId
                 )
                 setOwnerName(`${ownerDoc.firstName} ${ownerDoc.lastName}`)
+                setOwnerPhone(ownerDoc.phoneNumber || 'N/A')
+                setOwnerAddress(ownerDoc.address || 'N/A')
             } catch (error) {
                 console.error('Failed to fetch owner:', error)
                 setOwnerName('Unknown')
+                setOwnerPhone('N/A')
+                setOwnerAddress('N/A')
             }
         } else {
             setOwnerName('Unknown')
+            setOwnerPhone('N/A')
+            setOwnerAddress('N/A')
         }
     }, [id, fetchPetById])
 
@@ -119,6 +127,16 @@ const PatientDetails = () => {
                 <ThemedText style={styles.title}>Owner:</ThemedText>
                 <ThemedText style={styles.text}>{ownerName}</ThemedText>
 
+                <Spacer height={20} />
+
+                <ThemedText style={styles.title}>Owner Phone:</ThemedText>
+                <ThemedText style={styles.text}>{ownerPhone}</ThemedText>
+
+                <Spacer height={20} />
+
+                <ThemedText style={styles.title}>Owner Address:</ThemedText>
+                <ThemedText style={styles.text}>{ownerAddress}</ThemedText>
+
                 {pet.passportId && (
                     <ThemedView style={{ backgroundColor: null }}>
                         <Spacer height={20} />
@@ -178,6 +196,29 @@ const PatientDetails = () => {
                 <Ionicons name="chevron-forward-outline" size={20} color={theme.text} />
             </ThemedButton>
 
+            {pet.chipId ? (
+                <ThemedButton onPress={() => router.push({
+                    pathname: '/patients/chipDetails',
+                    params: { petId: pet.$id }
+                })} style={[styles.options, { backgroundColor: theme.uiBackground }]} >
+                    <Ionicons name="hardware-chip-outline" size={20} color={Colors.primary} />
+                    <ThemedText style={{ fontSize: 20, marginRight: 195, marginLeft: 10 }}>
+                        Chip Info
+                    </ThemedText>
+                    <Ionicons name="chevron-forward-outline" size={20} color={theme.text} />
+                </ThemedButton>
+            ) : (
+                <ThemedButton onPress={() => router.push({
+                    pathname: '/patients/addChip',
+                    params: { petId: pet.$id }
+                })} style={[styles.createPassportButton, { backgroundColor: Colors.primary }]} >
+                    <Ionicons name="add-circle-outline" size={24} color="#fff" />
+                    <ThemedText style={{ fontSize: 20, color: '#fff', marginLeft: 10 }}>
+                        Add Chip
+                    </ThemedText>
+                </ThemedButton>
+            )}
+
             {pet.passport ? (
                 <ThemedButton onPress={() => router.push({
                     pathname: '/patients/passportVet',
@@ -202,7 +243,7 @@ const PatientDetails = () => {
             )}
 
             <ThemedButton onPress={() => router.push('/patients')} style={[styles.button, { backgroundColor: Colors.warning }]} >
-                <Text style={{ color: '#fff' }}>
+                <Text style={{ color: '#fff', fontSize: 18 }}>
                     Back
                 </Text>
             </ThemedButton>

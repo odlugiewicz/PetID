@@ -223,6 +223,19 @@ const PetDetails = () => {
                 <Ionicons name="chevron-forward-outline" size={20} color={theme.text} />
             </ThemedButton>
 
+            {pet.chipId && (
+                <ThemedButton onPress={() => router.push({
+                    pathname: '/pets/chip',
+                    params: { petId: pet.$id }
+                })} style={[styles.options, { backgroundColor: theme.uiBackground }]} >
+                    <Ionicons name="hardware-chip-outline" size={20} color={Colors.primary} />
+                    <ThemedText style={{ fontSize: 20, marginRight: 210, marginLeft: 10 }}>
+                        Chip
+                    </ThemedText>
+                    <Ionicons name="chevron-forward-outline" size={20} color={theme.text} />
+                </ThemedButton>
+            )}
+
             {pet.passportId && (
                 <ThemedButton onPress={() => router.push({
                     pathname: '/pets/passport',
