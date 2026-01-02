@@ -36,7 +36,7 @@ const PassportUser = () => {
                 setPet(petData)
 
                 if (petData) {
-                    const passportData = await fetchPassportByPetId(idParam)
+                    const passportData = await fetchPassportByPetId(idParam, petData)
                     setPassport(passportData)
                 }
             }
@@ -133,10 +133,17 @@ const PassportUser = () => {
                     <ThemedText style={styles.sectionTitle}>Pet Details</ThemedText>
                     <Spacer height={10} />
 
-                    <Image
-                        source={{ uri: imageUrl }}
-                        style={styles.petImage}
-                    />
+                    {imageUrl ? (
+                        <Image
+                            source={{ uri: imageUrl }}
+                            style={styles.petImage}
+                        />
+                    ) : (
+                        <View style={[styles.petImage, styles.imagePlaceholder, { backgroundColor: theme.uiBackground, borderColor: theme.text }]}>
+                            <Ionicons name="image-outline" size={40} color={theme.text} />
+                            <ThemedText style={{ marginTop: 8, fontSize: 12 }}>No Photo</ThemedText>
+                        </View>
+                    )}
 
                     <View style={styles.infoRow}>
                         <ThemedText style={styles.label}>Pet's Name:</ThemedText>
@@ -291,5 +298,11 @@ const styles = StyleSheet.create({
         borderRadius: 30,
         marginBottom: 10,
         alignSelf: 'center',
+    },
+    imagePlaceholder: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 2,
+        borderStyle: 'dashed',
     },
 })

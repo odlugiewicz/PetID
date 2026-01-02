@@ -34,16 +34,55 @@ export const PassportProvider = ({ children }) => {
         }
     }
 
-    const fetchPassportByPetId = async (petId) => {
+    const fetchPassportByPetId = async (petId, petData = null) => {
         setLoading(true)
         setError(null)
         try {
+            // First, try to find passport by pet relationship
             const response = await databases.listDocuments(
                 DATABASE_ID,
                 PASSPORTS_COLLECTION_ID,
                 [Query.equal('pet', petId)]
             )
-            return response.documents[0] || null
+            
+            if (response.documents.length > 0) {
+                return response.documents[0]
+            }
+            
+            // If no passport found by pet relationship, check pet's passport fields
+            if (petData) {
+                // Check if pet has a direct passport document ID reference
+                if (petData.passport) {
+                    try {
+                        const passportDoc = await databases.getDocument(
+                            DATABASE_ID,
+                            PASSPORTS_COLLECTION_ID,
+                            petData.passport
+                        )
+                        return passportDoc
+                    } catch (docErr) {
+                        console.log('Passport document ID not found:', docErr)
+                    }
+                }
+                
+                // Check if pet has a passportId (passport number) - search by passportNumber field
+                if (petData.passportId) {
+                    try {
+                        const passportByNumber = await databases.listDocuments(
+                            DATABASE_ID,
+                            PASSPORTS_COLLECTION_ID,
+                            [Query.equal('passportNumber', petData.passportId)]
+                        )
+                        if (passportByNumber.documents.length > 0) {
+                            return passportByNumber.documents[0]
+                        }
+                    } catch (numErr) {
+                        console.log('Passport not found by passport number:', numErr)
+                    }
+                }
+            }
+            
+            return null
         } catch (err) {
             console.error('Error fetching passport by pet ID:', err)
             setError(err.message)

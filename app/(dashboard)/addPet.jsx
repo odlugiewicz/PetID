@@ -392,7 +392,6 @@ const AddPet = () => {
                     </View>
                 </ThemedButton>
 
-                {/* Gender picker modal */}
                 <Modal
                     visible={showGenderPicker}
                     transparent
