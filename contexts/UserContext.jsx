@@ -53,10 +53,14 @@ export function UserProvider({ children }) {
 
   async function register(email, password, name, phone, lastName, address, licenseNumber, isVet) {
     try {
+      if (!name || !lastName || !email) {
+        throw new Error("Missing required fields");
+      }
+
       if (isVet) {
 
-        if (!licenseNumber || !name || !lastName) {
-          throw new Error("Missing required fields.");
+        if (!licenseNumber) {
+          throw new Error("Missing required fields");
         }
 
         const normalizedFirstName = name.trim();
@@ -112,6 +116,7 @@ export function UserProvider({ children }) {
 
         setUser({ ...accountData, role: "vet" });
       } else {
+
         await databases.createDocument(
           DATABASE_ID,
           PET_OWNERS_TABLE_ID,
