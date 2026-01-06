@@ -64,7 +64,7 @@ const AddMedicine = () => {
       setEndDate(null)
       setEndDateString("")
 
-      router.push({ pathname: `/patients/[patient]`, params: { patient: petId } })
+      router.push({ pathname: `/patients/medicineVet`, params: { patient: petId } })
     } catch (error) {
       console.log('Submitting add medicine form:', error)
       alert('Failed to add medicine')
@@ -78,7 +78,7 @@ const AddMedicine = () => {
     setDosage("")
     setEndDate(null)
     setEndDateString("")
-    router.push({ pathname: `/patients/[patient]`, params: { patient: petId } })
+    router.push({ pathname: `/patients/medicineVet`, params: { patient: petId } })
   }
 
   return (

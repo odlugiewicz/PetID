@@ -20,30 +20,31 @@ const MedicineVet = () => {
 
   const [pet, setPet] = useState(null)
   const [records, setRecords] = useState([])
-  const { petId } = useLocalSearchParams()
+  const { petId, patient } = useLocalSearchParams()
+  const resolvedPetId = petId || patient
   const { fetchPetById } = usePets()
   const { fetchMedicinesByPet } = useMedicines()
 
   useEffect(() => {
     async function loadPet() {
-      if (petId) {
-        const petData = await fetchPetById(petId)
+      if (resolvedPetId) {
+        const petData = await fetchPetById(resolvedPetId)
         setPet(petData)
       }
     }
     loadPet()
     return () => setPet(null)
-  }, [petId, fetchPetById])
+  }, [resolvedPetId, fetchPetById])
 
   useEffect(() => {
     async function loadRecords() {
-      if (petId) {
-        const docs = await fetchMedicinesByPet(petId)
+      if (resolvedPetId) {
+        const docs = await fetchMedicinesByPet(resolvedPetId)
         setRecords(docs)
       }
     }
     loadRecords()
-  }, [petId, fetchMedicinesByPet])
+  }, [resolvedPetId, fetchMedicinesByPet])
 
   const { current, past } = useMemo(() => {
     const now = new Date().toISOString()

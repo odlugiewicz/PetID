@@ -19,6 +19,10 @@ export const ChipProvider = ({ children }) => {
             throw new Error('Only vets can add chip information')
         }
 
+        if (!chipNumber?.trim() || !implantDate || !implantLocation?.trim() || !petId || !ownerName?.trim() || !ownerPhone?.trim() || !ownerAddress?.trim() || !petName?.trim() || !petSpecies?.trim() || !petBreed?.trim() || !petBirthDate) {
+            throw new Error('Please fill in all required fields')
+        }
+
         setLoading(true)
         setError(null)
 

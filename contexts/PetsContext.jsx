@@ -49,6 +49,10 @@ export function PetsProvider({ children }) {
 
     async function fetchPets() {
         try {
+            if (!user || !user.$id) {
+                throw new Error("Missing required fields");
+            }
+
             const response = await databases.listDocuments(
                 DATABASE_ID,
                 TABLE_ID,
@@ -95,6 +99,14 @@ export function PetsProvider({ children }) {
 
     async function addPet(data, imageAsset) {
         try {
+            if (!user || !user.$id) {
+                throw new Error("Missing required fields");
+            }
+
+            if (!data || !data.name) {
+                throw new Error("Missing required fields");
+            }
+
             let imageId = null;
 
             if (imageAsset && user?.$id) {
@@ -142,6 +154,14 @@ export function PetsProvider({ children }) {
 
     async function generatePetToken(petId) {
         try {
+            if (!petId) {
+                throw new Error("Missing required fields");
+            }
+
+            if (!user || !user.$id) {
+                throw new Error("Missing required fields");
+            }
+
             const randomCode = Math.floor(10000000 + Math.random() * 90000000).toString();
             const token = randomCode;
             

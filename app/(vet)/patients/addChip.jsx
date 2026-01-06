@@ -123,8 +123,8 @@ const AddChip = () => {
             return
         }
 
-        if (!chipNumber.trim()) {
-            Alert.alert('Validation', 'Chip number is required')
+        if (!chipNumber.trim() || !implantLocation.trim() || !ownerName.trim() || !ownerPhone.trim() || !ownerAddress.trim() || !petName.trim() || !petSpecies.trim() || !petBreed.trim() || !petBirthDate) {
+            Alert.alert('Error', 'Please fill in all required fields')
             return
         }
 
@@ -133,16 +133,16 @@ const AddChip = () => {
                 chipNumber: chipNumber.trim(),
                 implantDate: implantDate.toISOString(),
                 manufacturer,
-                implantLocation,
+                implantLocation: implantLocation.trim(),
                 notes,
                 petId,
-                ownerName: ownerName.trim() || null,
-                ownerPhone: ownerPhone.trim() || null,
-                ownerAddress: ownerAddress.trim() || null,
-                petName: petName.trim() || null,
-                petSpecies: petSpecies.trim() || null,
-                petBreed: petBreed.trim() || null,
-                petBirthDate: petBirthDate || null,
+                ownerName: ownerName.trim(),
+                ownerPhone: ownerPhone.trim(),
+                ownerAddress: ownerAddress.trim(),
+                petName: petName.trim(),
+                petSpecies: petSpecies.trim(),
+                petBreed: petBreed.trim(),
+                petBirthDate: petBirthDate,
             })
             Alert.alert('Success', 'Chip information saved')
             router.replace({ pathname: `/patients/[patient]`, params: { patient: petId } })

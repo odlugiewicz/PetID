@@ -33,6 +33,10 @@ export function UserProvider({ children }) {
 
   async function login(email, password) {
     try {
+      if (!email || !password) {
+        throw new Error("Missing required fields");
+      }
+
       await account.createEmailPasswordSession(email, password);
       const response = await account.get();
 

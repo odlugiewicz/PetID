@@ -120,7 +120,10 @@ const AddPet = () => {
     };
 
     const handleSubmit = async () => {
-        if (!name.trim() || !speciesName.trim() || !breedName.trim()) return
+        if (!name.trim() || !speciesName.trim() || !breedName.trim()) {
+            alert("Missing required fields");
+            return;
+        }
 
         setLoading(true)
 
